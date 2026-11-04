@@ -137,12 +137,79 @@
       entity("a-cylinder",{position:`${x-.28} ${h*.55} ${z}`,radius:.12,height:h*.42,rotation:"0 0 90",color:"#43834e"});
       entity("a-cylinder",{position:`${x-.4} ${h*.68} ${z}`,radius:.12,height:h*.28,color:"#43834e"});
     }
+    function addAmazonTree(x,z,h=7,leaf="#18583d"){
+      // Tronco alto e raízes tabulares: elementos característicos de árvores da floresta amazônica.
+      entity("a-cylinder",{position:`${x} ${h/2} ${z}`,radius:.24,height:h,color:"#60452f"});
+      for(let a=0;a<4;a++){
+        const angle=a*Math.PI/2;
+        const rx=x+Math.cos(angle)*.52, rz=z+Math.sin(angle)*.52;
+        entity("a-cone",{position:`${(x+rx)/2} .42 ${(z+rz)/2}`,radiusBottom:.34,radiusTop:.06,height:1.15,rotation:`0 ${a*90} 68`,color:"#60452f"});
+      }
+      for(let i=0;i<7;i++){
+        const ox=(Math.random()-.5)*h*.42, oz=(Math.random()-.5)*h*.34;
+        entity("a-sphere",{position:`${x+ox} ${h*.82+Math.random()*1.1} ${z+oz}`,radius:1.15+Math.random()*.65,color:leaf,scale:"1 .82 1"});
+      }
+    }
+    function addAmazonPalm(x,z,h=5){
+      entity("a-cylinder",{position:`${x} ${h/2} ${z}`,radius:.13,height:h,color:"#806044"});
+      for(let i=0;i<8;i++){
+        const a=i*Math.PI/4;
+        entity("a-cone",{position:`${x+Math.cos(a)*1.05} ${h+.25} ${z+Math.sin(a)*1.05}`,radiusBottom:.18,radiusTop:.02,height:2.35,rotation:`0 ${i*45} ${i%2? -48:48}`,color:"#3b814b"});
+      }
+    }
+    function addHotspot(x,y,z,label,description){
+      const marker=entity("a-sphere",{class:"interactive",position:`${x} ${y} ${z}`,radius:.28,color:"#f1cf65",material:"emissive: #80621e; emissiveIntensity: .45"});
+      marker.addEventListener("click",()=>{
+        document.querySelector("#modal-title").textContent=label;
+        document.querySelector("#modal-text").textContent=description;
+        document.querySelector("#info-modal").classList.add("open");
+      });
+      entity("a-text",{value:label.toUpperCase(),position:`${x-1.35} ${y+.55} ${z}`,color:"#fff",width:3.8,align:"center",side:"double"});
+    }
+    function addMacaw(x,y,z){
+      // Representação didática estilizada de uma arara-vermelha.
+      entity("a-sphere",{position:`${x} ${y} ${z}`,radius:.34,color:"#d94332",scale:"1.35 .8 .8"});
+      entity("a-sphere",{position:`${x+.34} ${y+.18} ${z}`,radius:.19,color:"#d94332"});
+      entity("a-cone",{position:`${x+.55} ${y+.14} ${z}`,radiusBottom:.13,radiusTop:0,height:.34,rotation:"0 0 -90",color:"#e7bd35"});
+      entity("a-sphere",{position:`${x-.08} ${y+.02} ${z-.27}`,radius:.23,color:"#176c9a",scale:"1 .55 .3"});
+      entity("a-sphere",{position:`${x-.08} ${y+.02} ${z+.27}`,radius:.23,color:"#176c9a",scale:"1 .55 .3"});
+      entity("a-cylinder",{position:`${x} ${y-.42} ${z}`,radius:.035,height:.45,color:"#55432e"});
+    }
     function build(type){
       env.innerHTML="";
-      if(type==="forest"||type==="atlantic"){
-        for(let i=0;i<26;i++){let x=(Math.random()-.5)*42,z=-3-Math.random()*38;tree(x,z,3+Math.random()*5,type==="forest"?"#20583c":"#286b4a");}
+      if(type==="forest"){
+        // Clareira amazônica com dossel, sub-bosque, palmeiras e um rio lateral.
+        for(let i=0;i<30;i++){
+          const side=i%2===0?-1:1;
+          const x=side*(4.1+Math.random()*10);
+          const z=-2-Math.random()*32;
+          addAmazonTree(x,z,5.5+Math.random()*5,i%4===0?"#2d7048":"#18583d");
+        }
+        for(let i=0;i<10;i++) addAmazonPalm((Math.random()-.5)*23,-3-Math.random()*24,4+Math.random()*2);
+        // Rio sinuoso e margens: a faixa azul acompanha o lado direito da trilha.
+        entity("a-plane",{position:"7.8 .035 -16",rotation:"-90 0 0",width:7.2,height:38,color:"#287e91",material:"roughness: .22"});
+        entity("a-plane",{position:"3.85 .045 -16",rotation:"-90 0 0",width:1.2,height:38,color:"#9a8b5b"});
+        entity("a-plane",{position:"11.65 .045 -16",rotation:"-90 0 0",width:1.2,height:38,color:"#9a8b5b"});
+        for(let i=0;i<26;i++){
+          const x=(Math.random()-.5)*7,z=-2-Math.random()*29;
+          entity("a-cone",{position:`${x} .38 ${z}`,radiusBottom:.16,radiusTop:.025,height:.72,color:i%2?"#347b48":"#5b914e"});
+        }
+        // Troncos caídos, pedras e folhagem baixa na trilha.
+        entity("a-cylinder",{position:"-2 .34 -10",rotation:"0 0 78",radius:.24,height:4.2,color:"#654a32"});
+        for(let i=0;i<18;i++){
+          const x=(Math.random()-.5)*7,z=-2-Math.random()*25;
+          entity("a-sphere",{position:`${x} .18 ${z}`,radius:.24+Math.random()*.22,color:i%2?"#536b3b":"#746c4c",scale:"1 .55 1"});
+        }
+        // Arara estilizada pousada na vegetação.
+        addMacaw(-4.5,4.2,-8.5);
+        // Pontos de descoberta com conteúdos específicos da Amazônia.
+        addHotspot(-2.8,1.65,-5.5,"Camadas da floresta","A floresta possui diferentes estratos. O dossel é formado pelas copas das árvores; abaixo dele ficam o sub-bosque e o chão da floresta. Cada camada oferece condições e habitats distintos para plantas e animais.");
+        addHotspot(3.1,1.5,-9,"Rios e ciclo da água","Os rios amazônicos conectam ambientes e comunidades. A floresta também libera vapor d’água pela evapotranspiração, contribuindo para a formação de nuvens e para o transporte de umidade na América do Sul.");
+        addHotspot(-1.1,2.15,-14,"Biodiversidade","A Amazônia abriga enorme diversidade de plantas, insetos, peixes, anfíbios, aves e mamíferos. A arara-vermelha representada no cenário é um exemplo da fauna associada às florestas tropicais.");
+        addHotspot(5.2,1.6,-20,"Conservação","Desmatamento, queimadas e fragmentação de habitats ameaçam os ecossistemas. Unidades de conservação, pesquisa científica e os conhecimentos de povos e comunidades tradicionais são importantes para proteger a floresta.");
+      }else if(type==="atlantic"){
+        for(let i=0;i<26;i++){let x=(Math.random()-.5)*42,z=-3-Math.random()*38;tree(x,z,3+Math.random()*5,"#286b4a");}
         entity("a-plane",{position:"0 .025 -12",rotation:"-90 0 0",width:5,height:30,color:"#39828a",material:"roughness: .28"});
-        for(let i=0;i<9;i++)entity("a-sphere",{position:`${-9+i*2.3} .18 ${-5-Math.random()*13}`,radius:.35,color:"#2d7749",scale:"1 .45 1"});
       }else if(type==="savanna"){
         for(let i=0;i<16;i++){let x=(Math.random()-.5)*38,z=-4-Math.random()*32;tree(x,z,2.4+Math.random()*2,"#8b8747","#594b36");}
         for(let i=0;i<25;i++)entity("a-cone",{position:`${(Math.random()-.5)*35} .45 ${-3-Math.random()*28}`,radiusBottom:.5,radiusTop:.08,height:.9,color:"#b69b52"});
@@ -154,16 +221,17 @@
         entity("a-plane",{position:"0 .04 -10",rotation:"-90 0 0",width:40,height:36,color:"#4b9295",material:"roughness: .25"});
         for(let i=0;i<24;i++){let x=(Math.random()-.5)*38,z=-3-Math.random()*30;tree(x,z,2+Math.random()*2,"#4d7944","#62513b");}
         for(let i=0;i<22;i++)entity("a-cylinder",{position:`${(Math.random()-.5)*34} .55 ${-3-Math.random()*25}`,radius:.045,height:1.1,color:"#a3a35d"});
-        entity("a-box",{position:"-2 .2 -7",width:2,height:.25,depth:1,color:"#397c7d"});
       }else if(type==="grass"){
         for(let i=0;i<90;i++)entity("a-cone",{position:`${(Math.random()-.5)*48} .35 ${-2-Math.random()*36}`,radiusBottom:.12,radiusTop:.015,height:.7,color:i%3===0?"#9a9c54":"#78924e"});
         for(let i=0;i<8;i++)entity("a-sphere",{position:`${(i-4)*5} .5 ${-12-Math.random()*20}`,radius:2+Math.random()*2,color:"#91a66b",scale:"1 .28 1"});
       }
-      // Pontos educativos em 3D: aproxime a câmera e selecione com o cursor.
-      const marker=entity("a-sphere",{class:"interactive",position:"0 1.5 -5",radius:.38,color:"#e2c56b",material:"emissive: #5b461b; emissiveIntensity: .25"});
-      marker.addEventListener("click",()=>openInfo());
-      entity("a-text",{value:"PONTO DE DESCOBERTA",position:"-1.35 2.15 -5",color:"#ffffff",width:4,align:"center"});
-      entity("a-text",{value:"Explore a paisagem",position:"-1.05 1.05 -5",color:"#ffffff",width:3,align:"center"});
+      // Nos demais biomas, mantém um ponto geral de observação.
+      if(type!=="forest"){
+        const marker=entity("a-sphere",{class:"interactive",position:"0 1.5 -5",radius:.38,color:"#e2c56b",material:"emissive: #5b461b; emissiveIntensity: .25"});
+        marker.addEventListener("click",()=>openInfo());
+        entity("a-text",{value:"PONTO DE DESCOBERTA",position:"-1.35 2.15 -5",color:"#ffffff",width:4,align:"center"});
+        entity("a-text",{value:"Explore a paisagem",position:"-1.05 1.05 -5",color:"#ffffff",width:3,align:"center"});
+      }
     }
     function selectBiome(id){
       current=id;const b=biomes[id];if(panoramaUrl){URL.revokeObjectURL(panoramaUrl);panoramaUrl=null;}sky.removeAttribute("src");sky.setAttribute("color",b.sky);ground.setAttribute("color",b.ground);document.querySelector("#clear-panorama").hidden=true;build(b.type);
