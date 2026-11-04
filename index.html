@@ -66,7 +66,7 @@
             </a-entity>
             <a-entity id="camera-rig" position="0 1.6 8">
               <a-camera wasd-controls="acceleration: 28" look-controls>
-                <a-cursor raycaster="objects: .interactive" fuse="false" color="#f4e9a7" geometry="primitive: ring; radiusInner: 0.008; radiusOuter: 0.013"></a-cursor>
+                <a-cursor raycaster="objects: .interactive" fuse="true" fuse-timeout="1200" color="#f4e9a7" geometry="primitive: ring; radiusInner: 0.008; radiusOuter: 0.013"></a-cursor>
               </a-camera>
             </a-entity>
             <a-entity light="type: ambient; intensity: 1.15"></a-entity>
