@@ -1,1 +1,50 @@
-# Realidade-virtual-Geo
+# Brasil Imersivo — Realidade Virtual Geo
+
+Experiência educativa para explorar os **seis biomas brasileiros** por meio de ambientes tridimensionais, panoramas fotográficos em 360° e conteúdos de Geografia.
+
+## Acessar o projeto
+
+Depois de ativar o GitHub Pages, o site ficará disponível em:
+
+`https://brenner279.github.io/Realidade-virtual-Geo/`
+
+## Recursos do protótipo
+
+- Seleção entre Amazônia, Cerrado, Caatinga, Mata Atlântica, Pantanal e Pampa.
+- Cenários 3D construídos proceduralmente com A-Frame.
+- Navegação pelo cenário com teclado e mouse.
+- Botão de entrada em realidade virtual, quando o dispositivo e o navegador oferecem suporte a WebXR.
+- Carregamento local de uma fotografia panorâmica 360° para combinar a paisagem real com os elementos 3D.
+- Painéis com informações educativas sobre cada bioma.
+- Interface responsiva para computador e celular.
+
+## Como testar
+
+1. Abra `index.html` em um servidor local (por exemplo, a extensão Live Server do VS Code).
+2. Escolha um bioma no painel.
+3. No computador, use **W, A, S, D** ou as setas para se deslocar e arraste o mouse para olhar ao redor.
+4. Clique em **Carregar foto 360°** e selecione uma imagem panorâmica equiretangular (proporção recomendada 2:1, por exemplo 4096 × 2048).
+5. Clique em **Entrar em realidade virtual** em um navegador/dispositivo compatível.
+
+> Para WebXR, o site precisa ser servido por HTTPS (ou localhost durante o desenvolvimento). O suporte a VR depende do navegador, do dispositivo e de seus recursos.
+
+## Adicionar panoramas ao projeto
+
+O botão **Carregar foto 360°** permite testar uma imagem diretamente no dispositivo, sem enviá-la ao GitHub. Para que um panorama seja carregado automaticamente por bioma em uma próxima versão, adicione os arquivos otimizados em `assets/panoramas/` e registre seus caminhos na configuração dos biomas em `index.html`.
+
+Use imagens próprias, de domínio público ou com licença que permita reutilização. Registre a fonte e a licença de cada imagem.
+
+## Tecnologias
+
+- HTML5, CSS3 e JavaScript
+- [A-Frame 1.8.0](https://aframe.io/docs/)
+- WebXR
+- GitHub Pages (hospedagem)
+
+## Escopo e evolução
+
+Este é o **MVP inicial**. Os cenários atuais são representações 3D educativas, não reconstruções científicas em escala real. A camada de panorama 360° já permite testar fotografias locais; a próxima etapa é selecionar e integrar panoramas específicos e licenciados para cada bioma, além de adicionar modelos 3D de espécies nativas, trilhas e pontos de descoberta.
+
+## Licença
+
+A definir. As imagens, panoramas, modelos 3D e áudios incorporados futuramente devem manter suas atribuições e licenças individuais.
