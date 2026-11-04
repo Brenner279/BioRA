@@ -4,7 +4,7 @@ Experiência educativa para explorar os **seis biomas brasileiros** por meio de 
 
 ## Acessar o projeto
 
-Depois de ativar o GitHub Pages, o site ficará disponível em:
+Para publicar, abra **Settings → Pages → Build and deployment**, escolha **GitHub Actions** como fonte e aguarde a execução do workflow. O site ficará disponível em:
 
 `https://brenner279.github.io/Realidade-virtual-Geo/`
 
