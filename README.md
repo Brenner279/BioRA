@@ -4,7 +4,7 @@ Experiência educativa para explorar os **seis biomas brasileiros** por meio de 
 
 ## Acessar o projeto
 
-Para publicar, abra **Settings → Pages → Build and deployment**, escolha **GitHub Actions** como fonte e aguarde a execução do workflow. O site ficará disponível em:
+**Ativação inicial necessária:** abra **Settings → Pages → Build and deployment**, escolha **GitHub Actions** como fonte e salve. Essa primeira ativação precisa ser feita nas configurações do repositório; depois disso, o workflow publica automaticamente a cada atualização da branch `main`. O site ficará disponível em:
 
 `https://brenner279.github.io/Realidade-virtual-Geo/`
 
@@ -12,6 +12,7 @@ Para publicar, abra **Settings → Pages → Build and deployment**, escolha **G
 
 - Seleção entre Amazônia, Cerrado, Caatinga, Mata Atlântica, Pantanal e Pampa.
 - Cenários 3D construídos proceduralmente com A-Frame.
+- **Amazônia em desenvolvimento avançado:** dossel e sub-bosque, árvores com raízes tabulares, palmeiras, rio, margens, tronco caído, pedras, representação estilizada de uma arara-vermelha e quatro pontos interativos sobre camadas da floresta, ciclo da água, biodiversidade e conservação.
 - Navegação pelo cenário com teclado e mouse.
 - Botão de entrada em realidade virtual, quando o dispositivo e o navegador oferecem suporte a WebXR.
 - Carregamento local de uma fotografia panorâmica 360° para combinar a paisagem real com os elementos 3D.
@@ -43,7 +44,7 @@ Use imagens próprias, de domínio público ou com licença que permita reutiliz
 
 ## Escopo e evolução
 
-Este é o **MVP inicial**. Os cenários atuais são representações 3D educativas, não reconstruções científicas em escala real. A camada de panorama 360° já permite testar fotografias locais; a próxima etapa é selecionar e integrar panoramas específicos e licenciados para cada bioma, além de adicionar modelos 3D de espécies nativas, trilhas e pontos de descoberta.
+Este é um protótipo educativo em evolução. A Amazônia recebeu uma primeira expansão de cenário e conteúdo interativo; os demais biomas continuam com ambientes demonstrativos. Os modelos de árvores e animais são representações didáticas estilizadas, não reconstruções científicas em escala real. A camada de panorama 360° já permite testar fotografias locais; a próxima etapa é selecionar e integrar panoramas específicos e licenciados para cada bioma, além de adicionar modelos 3D de espécies nativas, trilhas e pontos de descoberta.
 
 ## Licença
 
