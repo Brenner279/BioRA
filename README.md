@@ -15,15 +15,16 @@ Projeto didático para explorar conteúdos de Biologia usando realidade aumentad
 - Marcador Hiro padrão do AR.js para validar o rastreamento.
 - Representação 3D simplificada do coração.
 - Painel educativo com informações sobre coração, pulmões e cérebro.
-
-O modelo do coração é uma representação geométrica demonstrativa, não um modelo anatômico científico detalhado. Os botões de órgãos atualizam as informações textuais; a seleção de malhas anatômicas 3D será implementada em uma etapa posterior.
+- Interface sem modo ou botão de VR.
 
 ## Como testar
 
-1. Em **Settings → Pages**, escolha **GitHub Actions** como fonte de publicação, caso ainda não esteja selecionada.
-2. Acompanhe a execução do workflow **BioAR — Deploy to GitHub Pages**.
-3. Depois da publicação, acesse https://brenner279.github.io/BioRA/ usando Chrome ou outro navegador compatível com WebGL.
-4. Toque em **Ativar câmera**, autorize o acesso e enquadre o marcador Hiro impresso.
+1. Abra o site em **https://brenner279.github.io/BioRA/** no Chrome Android.
+2. Quando o navegador solicitar, permita o acesso à câmera.
+3. Toque em **Mostrar câmera** para retirar a tela de orientação.
+4. Aponte para um marcador Hiro impresso, inteiro no enquadramento e bem iluminado.
+
+A captura da câmera é iniciada pelo AR.js quando a cena AR estática é carregada. O botão do BioAR apenas oculta a tela de orientação; não é um controle de modo VR/XR.
 
 ## Tecnologias
 
@@ -42,4 +43,4 @@ O modelo do coração é uma representação geométrica demonstrativa, não um 
 
 ## Observação sobre conexão
 
-Nesta etapa, o aplicativo e seus arquivos básicos podem ser armazenados em cache, mas as bibliotecas A-Frame e AR.js ainda são carregadas de uma CDN. Portanto, a experiência de câmera/RA requer conexão com a internet. O suporte offline completo será tratado depois de incluir essas bibliotecas e os modelos 3D localmente.
+As bibliotecas A-Frame e AR.js ainda são carregadas de uma CDN. Portanto, a experiência com câmera/RA requer conexão com a internet. O cache atual cobre apenas arquivos básicos da aplicação; o funcionamento offline completo será implementado depois de incluir bibliotecas e modelos 3D localmente.
