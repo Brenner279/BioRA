@@ -1,35 +1,45 @@
 # BioAR — Biologia em Realidade Aumentada
 
-Projeto educacional para explorar conteúdos de Biologia por meio de realidade aumentada no navegador.
+Projeto didático para explorar conteúdos de Biologia usando realidade aumentada no navegador.
 
-## Primeira versão
-- Interface responsiva em português.
-- Experiência inicial de anatomia humana com marcador Hiro.
-- Modelo 3D demonstrativo do coração construído com primitivas 3D.
-- Painel com informações sobre coração, pulmões e cérebro.
-- Estrutura inicial de PWA e cache do shell da aplicação.
-- Publicação automatizada pelo GitHub Actions.
+## Estrutura atual
+
+- `index.html`: interface do BioAR e protótipo de anatomia.
+- `manifest.webmanifest`: metadados do aplicativo web.
+- `sw.js`: cache inicial da estrutura da aplicação.
+- `.github/workflows/bioar-deploy.yml`: publicação do BioAR no GitHub Pages.
+
+## Protótipo atual
+
+- Módulo inicial de anatomia humana.
+- Marcador Hiro padrão do AR.js para validar o rastreamento.
+- Representação 3D simplificada do coração.
+- Painel educativo com informações sobre coração, pulmões e cérebro.
+
+O modelo do coração é uma representação geométrica demonstrativa, não um modelo anatômico científico detalhado. Os botões de órgãos atualizam as informações textuais; a seleção de malhas anatômicas 3D será implementada em uma etapa posterior.
 
 ## Como testar
-1. Ative o GitHub Pages em Settings → Pages e selecione GitHub Actions como fonte, caso ainda não esteja configurado.
-2. Aguarde a execução do workflow Deploy BioAR to GitHub Pages.
-3. Abra https://brenner279.github.io/BioRA/ em um navegador com suporte a WebGL.
-4. Autorize o uso da câmera.
-5. Aponte a câmera para um marcador Hiro impresso.
 
-O marcador Hiro é um marcador fiducial padrão do AR.js. Ele foi escolhido nesta primeira prova de conceito para validar a câmera e o posicionamento de objetos 3D sem depender ainda de um arquivo de alvo personalizado.
-
-## Próximas etapas
-1. Substituir o marcador padrão por alvos visuais próprios do BioAR usando MindAR.
-2. Integrar modelos anatômicos 3D reais em formato GLB.
-3. Criar seleção de órgãos com destaque visual e informações contextuais.
-4. Desenvolver os ciclos de metamorfose da borboleta e do sapo.
-5. Otimizar os recursos para uso em sala de aula e ampliar o funcionamento offline.
+1. Em **Settings → Pages**, escolha **GitHub Actions** como fonte de publicação, caso ainda não esteja selecionada.
+2. Acompanhe a execução do workflow **BioAR — Deploy to GitHub Pages**.
+3. Depois da publicação, acesse https://brenner279.github.io/BioRA/ usando Chrome ou outro navegador compatível com WebGL.
+4. Toque em **Ativar câmera**, autorize o acesso e enquadre o marcador Hiro impresso.
 
 ## Tecnologias
-- A-Frame
-- AR.js
-- JavaScript, HTML e CSS
+
+- A-Frame 1.6.0
+- AR.js 3.4.8 (build A-Frame para rastreamento de marcadores)
+- HTML, CSS e JavaScript
 - GitHub Pages
 
-> Observação: nesta etapa, o coração é uma representação 3D simplificada para validar a experiência de RA; não substitui um modelo anatômico científico detalhado. Os scripts de AR.js e A-Frame são carregados de CDNs, portanto o reconhecimento por câmera ainda requer conexão com a internet. O cache offline atual cobre apenas a estrutura básica da aplicação.
+## Próximas etapas
+
+1. Criar marcadores ilustrados personalizados para o BioAR, com rastreamento por imagem (MindAR).
+2. Integrar modelos anatômicos 3D reais em formato GLB.
+3. Adicionar seleção e destaque visual das estruturas anatômicas.
+4. Desenvolver as etapas de metamorfose da borboleta e do sapo.
+5. Otimizar os modelos e bibliotecas para uso em sala de aula e ampliar o funcionamento offline.
+
+## Observação sobre conexão
+
+Nesta etapa, o aplicativo e seus arquivos básicos podem ser armazenados em cache, mas as bibliotecas A-Frame e AR.js ainda são carregadas de uma CDN. Portanto, a experiência de câmera/RA requer conexão com a internet. O suporte offline completo será tratado depois de incluir essas bibliotecas e os modelos 3D localmente.
