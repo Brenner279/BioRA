@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BioAR - Metamorfose em Realidade Aumentada</title>
+    <!-- Tailwind CSS para UI moderna estilo Merge Explorer -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js para renderização 3D interativa -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #0f172a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #video-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; display: none; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2; }
+        .ui-layer { position: fixed; z-index: 10; pointer-events: none; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .interactive { pointer-events: auto; }
+        .glass-panel { background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); }
+        
+        /* Animação do Scanner de Marcador */
+        .scanner-line {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+            animation: scan 2s infinite ease-in-out;
+        }
+        @keyframes scan {
+            0% { transform: translateY(0); opacity: 0.3; }
+            50% { transform: translateY(180px); opacity: 1; }
+            100% { transform: translateY(0); opacity: 0.3; }
+        }
+    </style>
+</head>
+<body class="text-white select-none">
+
+    <!-- Feed da Câmera para Realidade Aumentada -->
+    <video id="video-bg" autoplay playsinline muted></video>
+
+    <!-- Cena 3D -->
+    <div id="canvas-container"></div>
+
+    <!-- Interface do Usuário (Estilo Merge Explorer) -->
+    <div class="ui-layer p-4 md:p-6">
+        
+        <!-- Barra Superior -->
+        <header class="flex flex-wrap items-center justify-between gap-3 glass-panel p-3.5 rounded-2xl interactive shadow-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center font-bold text-slate-950 text-xl shadow-md">
+                    🧬
+                </div>
+                <div>
+                    <h1 class="font-bold text-base md:text-lg leading-tight flex items-center gap-2">
+                        BioAR Explorer
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Biologia</span>
+                    </h1>
+                    <p class="text-xs text-slate-300">Metamorfose dos Animais com Marcadores</p>
+                </div>
+            </div>
+
+            <!-- Seletor de Animal e Modo -->
+            <div class="flex items-center gap-2">
+                <select id="animal-select" onchange="changeAnimal(this.value)" class="bg-slate-800/90 border border-slate-600 text-xs md:text-sm rounded-xl px-3 py-2 text-white font-medium focus:outline-none focus:border-cyan-400">
+                    <option value="frog">🐸 Ciclo do Sapo (Anfíbio)</option>
+                    <option value="butterfly">🦋 Ciclo da Borboleta (Inseto)</option>
+                </select>
+
+                <button id="ar-btn" onclick="toggleARCamera()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs md:text-sm px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-lg">
+                    <span>📷</span> <span id="ar-btn-text">Ativar Câmera RA</span>
+                </button>
+
+                <button onclick="toggleMarkerModal()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs md:text-sm px-3 py-2 rounded-xl transition border border-slate-600" title="Ver Marcador para Impressão">
+                    🖨️ Marcador
+                </button>
+            </div>
+        </header>
+
+        <!-- Guia de Escaneamento de Marcador (Centro) -->
+        <div id="scanner-overlay" class="hidden self-center flex flex-col items-center justify-center pointer-events-none">
+            <div class="w-48 h-48 border-2 border-dashed border-cyan-400/70 rounded-2xl relative flex items-center justify-center bg-cyan-950/10">
+                <div class="scanner-line absolute top-0"></div>
+                <span class="text-xs text-cyan-200 bg-slate-900/80 px-2.5 py-1 rounded-md">Aponte para o Marcador / Cubo</span>
+            </div>
+        </div>
+
+        <!-- Painel Inferior de Controle de Estágios e Rótulos Anatômicos -->
+        <footer class="flex flex-col md:flex-row gap-4 items-stretch md:items-end justify-between">
+            
+            <!-- Card Informativo da Fase Atual -->
+            <div class="glass-panel p-4 rounded-2xl interactive max-w-md w-full shadow-2xl border-l-4 border-l-emerald-400">
+                <div class="flex items-center justify-between mb-1">
+                    <span id="stage-badge" class="text-xs uppercase tracking-wider font-bold text-emerald-400">Fase 1 de 4</span>
+                    <button onclick="speakCurrentStage()" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg text-cyan-300 border border-slate-700 flex items-center gap-1 transition">
+                        🔊 Ouvir Narração (TTS)
+                    </button>
+                </div>
+                <h2 id="stage-title" class="text-xl font-bold text-white mb-1">1. Ovos (Desova Aquática)</h2>
+                <p id="stage-desc" class="text-xs md:text-sm text-slate-200 leading-relaxed mb-3">
+                    Os ovos de anfíbios são envolvidos por uma cápsula gelatinosa transparente que os protege na água e mantém a umidade necessária para o embrião.
+                </p>
+                <div class="bg-slate-900/70 rounded-xl p-2.5 border border-slate-700/70 flex items-center justify-between text-xs">
+                    <span class="text-slate-400">🔬 Destaque Biológico:</span>
+                    <span id="stage-highlight" class="font-semibold text-cyan-300">Desenvolvimento Embrionário Externo</span>
+                </div>
+            </div>
+
+            <!-- Controles de Navegação da Metamorfose (Igual ao StateIndicatorControl do APK) -->
+            <div class="glass-panel p-3.5 rounded-2xl interactive flex flex-col gap-3 w-full md:w-auto shadow-2xl">
+                <div class="flex items-center justify-between gap-4">
+                    <span class="text-xs font-semibold text-slate-300">Estágios da Metamorfose:</span>
+                    <label class="flex items-center gap-1.5 text-xs cursor-pointer text-cyan-300">
+                        <input type="checkbox" id="toggle-cube" checked onchange="toggleMarkerCube(this.checked)" class="rounded accent-cyan-400">
+                        Mostrar Cubo Marcador
+                    </label>
+                </div>
+
+                <!-- Botões de Fase -->
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="setStage(0)" id="btn-stage-0" class="stage-btn bg-emerald-500 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition flex flex-col items-center">
+                        <span class="text-base">🥚</span>
+                        <span>Fase 1</span>
+                    </button>
+                    <button onclick="setStage(1)" id="btn-stage-1" class="stage-btn bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-3 rounded-xl text-xs transition flex flex-col items-center">
+                        <span class="text-base" id="icon-stage-1">🐟</span>
+                        <span>Fase 2</span>
+                    </button>
+                    <button onclick="setStage(2)" id="btn-stage-2" class="stage-btn bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-3 rounded-xl text-xs transition flex flex-col items-center">
+                        <span class="text-base" id="icon-stage-2">🦎</span>
+                        <span>Fase 3</span>
+                    </button>
+                    <button onclick="setStage(3)" id="btn-stage-3" class="stage-btn bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-3 rounded-xl text-xs transition flex flex-col items-center">
+                        <span class="text-base" id="icon-stage-3">🐸</span>
+                        <span>Fase 4</span>
+                    </button>
+                </div>
+
+                <!-- Controle de Rotação e Escala -->
+                <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-700/60 text-xs text-slate-400">
+                    <span>💡 Arraste o modelo 3D para girar</span>
+                    <button onclick="nextStage()" class="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 px-3 py-1 rounded-lg font-semibold transition">
+                        Próxima Fase ➔
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal com Marcador Imprimível (Alvo RA) -->
+    <div id="marker-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 interactive">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl">
+            <h3 class="text-lg font-bold text-white mb-1">Marcador fiducial para Realidade Aumentada</h3>
+            <p class="text-xs text-slate-300 mb-4">
+                Imprima este marcador (ou exiba em outro celular/cubo) para utilizar no modo de rastreamento óptico com câmera.
+            </p>
+            
+            <!-- Padrão de Marcador Estilo Fiducial / QR / Merge -->
+            <div class="bg-white p-6 rounded-2xl mx-auto w-56 h-56 flex items-center justify-center border-8 border-black shadow-inner mb-4">
+                <div class="w-full h-full border-4 border-black p-3 flex flex-col justify-between">
+                    <div class="flex justify-between">
+                        <div class="w-8 h-8 bg-black"></div>
+                        <div class="w-4 h-4 bg-black"></div>
+                        <div class="w-8 h-8 bg-black"></div>
+                    </div>
+                    <div class="text-black font-black text-lg tracking-widest">BIO-AR</div>
+                    <div class="flex justify-between">
+                        <div class="w-8 h-8 bg-black"></div>
+                        <div class="w-10 h-4 bg-black"></div>
+                        <div class="w-8 h-8 bg-black"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 justify-center">
+                <button onclick="window.print()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl transition">
+                    🖨️ Imprimir Marcador
+                </button>
+                <button onclick="toggleMarkerModal()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados Biológicos da Metamorfose (Sapo e Borboleta)
+        const biologyData = {
+            frog: {
+                icons: ["🥚", "🐟", "🦎", "🐸"],
+                stages: [
+                    {
+                        title: "1. Ovos (Desova Aquática)",
+                        desc: "Os ovos são postos na água em massas gelatinosas. O embrião se desenvolve rapidamente alimentando-se do vitelo interno.",
+                        highlight: "Cápsula gelatinosa protetora sem casca rígida"
+                    },
+                    {
+                        title: "2. Girino (Fase Larval)",
+                        desc: "Após a eclosão, o girino vive exclusivamente na água, respira por brânquias e possui uma longa cauda propulsora para natação.",
+                        highlight: "Respiração branquial e coração bicavitário"
+                    },
+                    {
+                        title: "3. Girino com Patas (Metamorfose)",
+                        desc: "Sob ação do hormônio tiroxina, surgem primeiro as patas traseiras e depois as dianteiras. Os pulmões começam a substituir as brânquias.",
+                        highlight: "Ação da glândula tireoide (hormônio tiroxina)"
+                    },
+                    {
+                        title: "4. Sapo Adulto (Anuro)",
+                        desc: "A cauda sofre apoptose (reabsorção celular). O animal torna-se anfíbio terrestre/aquático com respiração pulmonar e cutânea.",
+                        highlight: "Apoptose da cauda e respiração cutânea/pulmonar"
+                    }
+                ]
+            },
+            butterfly: {
+                icons: ["🥚", "🐛", "🥜", "🦋"],
+                stages: [
+                    {
+                        title: "1. Ovo sobre a Folha",
+                        desc: "A fêmea deposita pequenos ovos na planta hospedeira correta, garantindo alimento imediato assim que a larva eclodir.",
+                        highlight: "Córion protetor com micrópila para trocas gasosas"
+                    },
+                    {
+                        title: "2. Lagarta (Fase Larval)",
+                        desc: "Estágio focado no crescimento acelerado. A lagarta consome folhas continuamente e realiza várias mudas (ecdises) do exoesqueleto.",
+                        highlight: "Crescimento via ecdises (hormônio ecdisona)"
+                    },
+                    {
+                        title: "3. Crisálida (Pupa)",
+                        desc: "Aparentemente imóvel, ocorre uma reorganização radical dos tecidos (histólise e histogênese) formando asas, antenas e órgãos adultos.",
+                        highlight: "Histólise e diferenciação dos discos imaginais"
+                    },
+                    {
+                        title: "4. Imago (Borboleta Adulta)",
+                        desc: "A borboleta emerge da crisálida, bombeia hemolinfa para expandir as asas e inicia a fase reprodutiva e polinizadora.",
+                        highlight: "Metamorfose Completa (Holometabolismo)"
+                    }
+                ]
+            }
+        };
+
+        let currentAnimal = 'frog';
+        let currentStage = 0;
+        let isCameraActive = false;
+
+        // Configuração Three.js
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1.8, 5.2);
+        camera.lookAt(0, 0.2, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Iluminação
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
+        dirLight.position.set(4, 8, 5);
+        scene.add(dirLight);
+
+        // Grupo Raiz (Representa a Âncora do Marcador / Merge Cube)
+        const markerRoot = new THREE.Group();
+        scene.add(markerRoot);
+
+        // Cubo Marcador (Estilo Merge Cube)
+        const cubeGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+        const cubeEdges = new THREE.EdgesGeometry(cubeGeo);
+        const markerCube = new THREE.Group();
+        
+        const cubeMat = new THREE.MeshStandardMaterial({
+            color: 0x1e293b,
+            roughness: 0.4,
+            metalness: 0.3,
+            transparent: true,
+            opacity: 0.45
+        });
+        const cubeMesh = new THREE.Mesh(cubeGeo, cubeMat);
+        const lineMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 2 });
+        const wireframe = new THREE.LineSegments(cubeEdges, lineMat);
+        markerCube.add(cubeMesh);
+        markerCube.add(wireframe);
+        markerCube.position.y = -0.2;
+        markerRoot.add(markerCube);
+
+        // Grupo do Modelo Biológico 3D
+        const modelGroup = new THREE.Group();
+        modelGroup.position.y = 0.2;
+        markerRoot.add(modelGroup);
+
+        // Construção Procedural dos Modelos 3D de cada Estágio
+        function build3DStageModel(animal, stageIndex) {
+            while (modelGroup.children.length > 0) {
+                modelGroup.remove(modelGroup.children[0]);
+            }
+
+            if (animal === 'frog') {
+                if (stageIndex === 0) {
+                    // Ovos de Sapo em Cápsula Gelatinosa
+                    const jellyMat = new THREE.MeshPhysicalMaterial({ color: 0xa5f3fc, transparent: true, opacity: 0.45, roughness: 0.1 });
+                    const coreMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 });
+                    const positions = [[-0.35, 0, 0.2], [0.35, 0.1, -0.1], [0, 0.35, -0.2], [-0.1, -0.25, -0.3], [0.25, -0.2, 0.3]];
+                    positions.forEach(pos => {
+                        const egg = new THREE.Group();
+                        egg.add(new THREE.Mesh(new THREE.SphereGeometry(0.32, 24, 24), jellyMat));
+                        egg.add(new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), coreMat));
+                        egg.position.set(pos[0], pos[1], pos[2]);
+                        modelGroup.add(egg);
+                    });
+                } else if (stageIndex === 1) {
+                    // Girino
+                    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.4 });
+                    const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 24, 24), bodyMat);
+                    head.scale.set(1.3, 0.9, 0.9);
+                    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.28, 1.3, 20), new THREE.MeshStandardMaterial({ color: 0x4ade80, transparent: true, opacity: 0.8 }));
+                    tail.rotation.z = Math.PI / 2;
+                    tail.position.x = -0.85;
+                    modelGroup.add(head, tail);
+                } else if (stageIndex === 2) {
+                    // Girino com Patas
+                    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.4 });
+                    const body = new THREE.Mesh(new THREE.SphereGeometry(0.45, 24, 24), bodyMat);
+                    body.scale.set(1.35, 0.85, 0.95);
+                    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.95, 20), bodyMat);
+                    tail.rotation.z = Math.PI / 2;
+                    tail.position.x = -0.75;
+                    
+                    const legGeo = new THREE.CapsuleGeometry(0.08, 0.35, 8, 16);
+                    const legL = new THREE.Mesh(legGeo, bodyMat);
+                    legL.position.set(-0.2, -0.3, 0.4);
+                    legL.rotation.z = 0.5;
+                    const legR = legL.clone();
+                    legR.position.z = -0.4;
+                    modelGroup.add(body, tail, legL, legR);
+                } else {
+                    // Sapo Adulto
+                    const frogMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.35 });
+                    const torso = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 24), frogMat);
+                    torso.scale.set(1.2, 0.85, 1.0);
+                    
+                    const eyeWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
+                    const pupil = new THREE.MeshStandardMaterial({ color: 0x000000 });
+                    [-0.25, 0.25].forEach(z => {
+                        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), eyeWhite);
+                        eye.position.set(0.38, 0.42, z);
+                        const p = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), pupil);
+                        p.position.set(0.49, 0.45, z);
+                        modelGroup.add(eye, p);
+                    });
+                    modelGroup.add(torso);
+                }
+            } else {
+                // Borboleta
+                if (stageIndex === 0) {
+                    // Folha com Ovo
+                    const leaf = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 0.8), new THREE.MeshStandardMaterial({ color: 0x15803d }));
+                    const egg = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 24), new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.2 }));
+                    egg.scale.set(1, 1.3, 1);
+                    egg.position.y = 0.22;
+                    modelGroup.add(leaf, egg);
+                } else if (stageIndex === 1) {
+                    // Lagarta Segmentada
+                    const colors = [0x16a34a, 0xfacc15, 0x16a34a, 0xfacc15, 0x15803d];
+                    colors.forEach((col, idx) => {
+                        const seg = new THREE.Mesh(new THREE.SphereGeometry(0.26, 20, 20), new THREE.MeshStandardMaterial({ color: col }));
+                        seg.position.x = (idx - 2) * 0.36;
+                        seg.position.y = Math.sin(idx) * 0.12;
+                        modelGroup.add(seg);
+                    });
+                } else if (stageIndex === 2) {
+                    // Crisálida (Pupa)
+                    const pupaMat = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.25, metalness: 0.2 });
+                    const pupa = new THREE.Mesh(new THREE.ConeGeometry(0.38, 1.25, 24), pupaMat);
+                    pupa.rotation.x = Math.PI;
+                    modelGroup.add(pupa);
+                } else {
+                    // Borboleta Adulta (Monarca)
+                    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.1, 16), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+                    body.rotation.z = Math.PI / 2;
+                    
+                    const wingGeo = new THREE.BoxGeometry(0.7, 0.03, 0.9);
+                    const wingMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.3 });
+                    
+                    const wingL = new THREE.Mesh(wingGeo, wingMat);
+                    wingL.position.set(0, 0.1, 0.52);
+                    wingL.rotation.x = 0.35;
+                    
+                    const wingR = new THREE.Mesh(wingGeo, wingMat);
+                    wingR.position.set(0, 0.1, -0.52);
+                    wingR.rotation.x = -0.35;
+
+                    modelGroup.add(body, wingL, wingR);
+                }
+            }
+
+            // Efeito suave de escala estilo DOTween ao trocar de estágio
+            modelGroup.scale.set(0.01, 0.01, 0.01);
+        }
+
+        // Controle de UI e Mudança de Fase
+        function setStage(index) {
+            currentStage = index;
+            const data = biologyData[currentAnimal].stages[index];
+            
+            document.getElementById('stage-badge').innerText = `Fase ${index + 1} de 4`;
+            document.getElementById('stage-title').innerText = data.title;
+            document.getElementById('stage-desc').innerText = data.desc;
+            document.getElementById('stage-highlight').innerText = data.highlight;
+
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`btn-stage-${i}`);
+                if (i === index) {
+                    btn.className = "stage-btn bg-emerald-500 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition flex flex-col items-center shadow-lg scale-105";
+                } else {
+                    btn.className = "stage-btn bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-3 rounded-xl text-xs transition flex flex-col items-center";
+                }
+            }
+
+            build3DStageModel(currentAnimal, index);
+        }
+
+        function nextStage() {
+            setStage((currentStage + 1) % 4);
+        }
+
+        function changeAnimal(animalKey) {
+            currentAnimal = animalKey;
+            const icons = biologyData[animalKey].icons;
+            document.getElementById('icon-stage-1').innerText = icons[1];
+            document.getElementById('icon-stage-2').innerText = icons[2];
+            document.getElementById('icon-stage-3').innerText = icons[3];
+            setStage(0);
+        }
+
+        function toggleMarkerCube(visible) {
+            markerCube.visible = visible;
+        }
+
+        function toggleMarkerModal() {
+            const modal = document.getElementById('marker-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Síntese de Voz (Equivalente ao plugin EasyTTS do APK)
+        function speakCurrentStage() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const data = biologyData[currentAnimal].stages[currentStage];
+                const utterance = new SpeechSynthesisUtterance(`${data.title}. ${data.desc}`);
+                utterance.lang = 'pt-BR';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Ativação de Câmera WebRTC para Realidade Aumentada
+        async function toggleARCamera() {
+            const video = document.getElementById('video-bg');
+            const btnText = document.getElementById('ar-btn-text');
+            const overlay = document.getElementById('scanner-overlay');
+
+            if (!isCameraActive) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' },
+                        audio: false
+                    });
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    overlay.classList.remove('hidden');
+                    btnText.innerText = 'Desativar Câmera';
+                    isCameraActive = true;
+                } catch (err) {
+                    alert('Não foi possível acessar a câmera. Verifique as permissões HTTPS do navegador.');
+                }
+            } else {
+                const stream = video.srcObject;
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                video.style.display = 'none';
+                overlay.classList.add('hidden');
+                btnText.innerText = 'Ativar Câmera RA';
+                isCameraActive = false;
+            }
+        }
+
+        // Interação de Toque e Mouse para girar o Cubo/Modelo 3D
+        let isDragging = false;
+        let prevX = 0, prevY = 0;
+
+        window.addEventListener('pointerdown', (e) => {
+            if (e.target.tagName === 'CANVAS') {
+                isDragging = true;
+                prevX = e.clientX;
+                prevY = e.clientY;
+            }
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - prevX;
+            const dy = e.clientY - prevY;
+            markerRoot.rotation.y += dx * 0.01;
+            markerRoot.rotation.x = Math.max(-0.8, Math.min(0.8, markerRoot.rotation.x + dy * 0.01));
+            prevX = e.clientX;
+            prevY = e.clientY;
+        });
+
+        window.addEventListener('pointerup', () => { isDragging = false; });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Loop de Renderização e Interpolação de Escala
+        let clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            // Interpolação suave de entrada (efeito DOTween)
+            if (modelGroup.scale.x < 1) {
+                modelGroup.scale.lerp(new THREE.Vector3(1, 1, 1), 0.12);
+            }
+
+            // Flutuação orgânica do modelo sobre o marcador
+            modelGroup.position.y = 0.2 + Math.sin(t * 2.2) * 0.08;
+            if (!isDragging) {
+                markerRoot.rotation.y += 0.004;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Inicializa cena
+        setStage(0);
+        animate();
+    </script>
+</body>
+</html>
