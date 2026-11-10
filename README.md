@@ -16,7 +16,7 @@ Projeto didático para explorar conteúdos de Biologia usando realidade aumentad
 - Representação 3D simplificada do coração.
 - Painel educativo com informações sobre coração, pulmões e cérebro.
 - Interface sem modo ou botão de VR.
-- Feed de vídeo da câmera reposicionado dentro do quadro do laboratório, sobre o fundo e atrás da camada 3D.
+- Feed de vídeo reposicionado dentro do quadro do laboratório, com camadas de vídeo e 3D separadas e sem observador contínuo do DOM.
 
 ## Como testar
 
@@ -30,7 +30,7 @@ A captura da câmera é iniciada pelo AR.js quando a cena AR estática é carreg
 ## Tecnologias
 
 - A-Frame 1.6.0
-- AR.js 3.4.8 (build A-Frame para rastreamento de marcadores)
+- AR.js 3.4.7 (build A-Frame para rastreamento de marcadores)
 - HTML, CSS e JavaScript
 - GitHub Pages
 
@@ -44,4 +44,4 @@ A captura da câmera é iniciada pelo AR.js quando a cena AR estática é carreg
 
 ## Observação sobre conexão
 
-As bibliotecas A-Frame e AR.js ainda são carregadas de uma CDN. Portanto, a experiência com câmera/RA requer conexão com a internet. O cache atual cobre apenas arquivos básicos da aplicação; o funcionamento offline completo será implementado depois de incluir bibliotecas e modelos 3D localmente.
+As bibliotecas A-Frame 1.6.0 e AR.js 3.4.7 ainda são carregadas de uma CDN. Portanto, a experiência com câmera/RA requer conexão com a internet. O cache atual cobre apenas arquivos básicos da aplicação; o funcionamento offline completo será implementado depois de incluir bibliotecas e modelos 3D localmente.
