@@ -16,12 +16,13 @@ Projeto didático para explorar conteúdos de Biologia usando realidade aumentad
 - Representação 3D simplificada do coração.
 - Painel educativo com informações sobre coração, pulmões e cérebro.
 - Interface sem modo ou botão de VR.
+- Feed de vídeo da câmera reposicionado dentro do quadro do laboratório, sobre o fundo e atrás da camada 3D.
 
 ## Como testar
 
 1. Abra o site em **https://brenner279.github.io/BioRA/** no Chrome Android.
 2. Quando o navegador solicitar, permita o acesso à câmera.
-3. Toque em **Mostrar câmera** para retirar a tela de orientação.
+3. O feed da câmera deve aparecer dentro do quadro azul do laboratório. Toque em **Mostrar câmera** para retirar a tela de orientação.
 4. Aponte para um marcador Hiro impresso, inteiro no enquadramento e bem iluminado.
 
 A captura da câmera é iniciada pelo AR.js quando a cena AR estática é carregada. O botão do BioAR apenas oculta a tela de orientação; não é um controle de modo VR/XR.
