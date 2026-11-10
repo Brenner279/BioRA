@@ -9,6 +9,10 @@ Projeto didático para explorar conteúdos de Biologia usando realidade aumentad
 - `sw.js`: cache inicial da estrutura da aplicação.
 - `.github/workflows/bioar-deploy.yml`: publicação do BioAR no GitHub Pages.
 
+## Interface mobile-first
+
+A interface é otimizada primeiro para celulares Android e iOS no navegador, com área de câmera ampla, controles de toque, painéis compactos e adaptação para orientação retrato e paisagem. Não é necessário instalar um APK.
+
 ## Protótipo atual
 
 - Módulo inicial de anatomia humana.
