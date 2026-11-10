@@ -46,8 +46,24 @@ button:focus-visible{outline:3px solid #74cfc2;outline-offset:3px}
 .ar-stage{width:min(100%,480px);aspect-ratio:1/1;position:relative;overflow:hidden;isolation:isolate;background:#102b46;border-radius:18px;border:1px solid #284d65;box-shadow:0 8px 24px #102b4620}
 #arMount{position:absolute;inset:0;width:100%;height:100%;z-index:2;overflow:hidden}
 #arMount a-scene{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background:transparent!important}
-#arMount canvas{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background:transparent!important}
-#arStage video.bioar-camera-feed{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:1!important;display:block!important;background:#102b46!important}
+#arMount canvas{position:absolute!important;inset:0!important;z-index:2!important;background:transparent!important}
+body.ar-active{overflow:hidden;background:#071521}
+body.ar-active .topbar,body.ar-active .page>:not(#experiencia),body.ar-active footer{display:none!important}
+body.ar-active .page{width:100%;max-width:none;margin:0;padding:0}
+body.ar-active #experiencia{position:fixed;inset:0;width:100vw;height:100dvh;z-index:1000;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+body.ar-active #experiencia .lab-head,body.ar-active #experiencia .info-column{display:none!important}
+body.ar-active #experiencia .lab-body,body.ar-active #experiencia .camera-column{display:block;width:100%;height:100%;padding:0;background:transparent}
+body.ar-active .ar-stage{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none;background:#071521;overflow:hidden}
+body.ar-active #arMount{position:absolute;inset:0;width:100%;height:100%;z-index:2;overflow:hidden}
+body.ar-active #arMount a-scene{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2!important}
+body.ar-active #arMount canvas{position:fixed!important;top:0!important;left:0!important;right:auto!important;bottom:auto!important;z-index:2!important}
+body.ar-active #arjs-video{position:fixed!important;top:0!important;left:0!important;z-index:1!important}
+.marker-guide{display:none;position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(74vmin,420px);aspect-ratio:1/1;border:2px solid #66d7c8;border-radius:20px;box-shadow:0 0 0 999px #06131d45,0 0 26px #47c9bb45;pointer-events:none}
+.marker-guide.visible{display:block}
+.marker-guide:before,.marker-guide:after{content:"";position:absolute;inset:12px;border:1px dashed #ffffff65;border-radius:12px}
+.marker-guide span{position:absolute;left:50%;top:calc(100% + 14px);transform:translateX(-50%);width:max-content;max-width:85vw;padding:8px 12px;border:1px solid #ffffff45;border-radius:30px;background:#061b2bd9;color:#fff;font-size:10px;font-weight:800;letter-spacing:.6px;text-align:center}
+body.ar-active .stage-status{top:14px;bottom:auto}
+body.ar-active .stage-stop{top:14px}
 .stage-idle{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:24px;background:linear-gradient(150deg,#102b46,#174b63)}
 .stage-idle.hidden{display:none}
 .focus-frame{width:min(64%,230px);aspect-ratio:1/1;border:2px solid #59d0c0;border-radius:18px;position:relative;margin-bottom:17px;box-shadow:0 0 0 999px #081e2c13,0 0 26px #47c9bb35}
@@ -178,6 +194,7 @@ footer{text-align:center;padding:22px 14px;color:#8194a0;font-size:10px}
             <p>Posicione o marcador Hiro inteiro dentro deste quadrado. A câmera só será ativada quando você tocar no botão.</p>
             <button class="btn-primary" id="startCamera" type="button">Ativar câmera</button>
           </div>
+          <div class="marker-guide" id="markerGuide"><span>ENQUADRE O MARCADOR HIRO INTEIRO</span></div>
           <button class="stage-stop" id="stopCamera" type="button">Desligar câmera</button>
           <div class="stage-status"><span id="cameraStatus">CÂMERA DESLIGADA</span></div>
         </div>
@@ -216,39 +233,120 @@ footer{text-align:center;padding:22px 14px;color:#8194a0;font-size:10px}
 const organs={heart:{title:"Coração",description:"O coração é um órgão muscular que impulsiona o sangue para os pulmões e para todo o corpo.",fn:"Manter a circulação sanguínea e levar oxigênio e nutrientes às células."},lungs:{title:"Pulmões",description:"Nos pulmões ocorre a troca de gases entre o ar e o sangue.",fn:"Captar oxigênio e eliminar dióxido de carbono."},brain:{title:"Cérebro",description:"O cérebro integra informações sensoriais, memória, linguagem e movimentos.",fn:"Processar informações e coordenar diversas atividades do organismo."}};
 const $=id=>document.getElementById(id);
 document.querySelectorAll("[data-organ]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-organ]").forEach(x=>x.classList.remove("active"));b.classList.add("active");const o=organs[b.dataset.organ];$("organTitle").textContent=o.title;$("organDescription").textContent=o.description;$("organFunction").textContent=o.fn;}));
-const stage=$("arStage"),mount=$("arMount"),idle=$("stageIdle"),start=$("startCamera"),stop=$("stopCamera"),status=$("cameraStatus");
+const mount=$("arMount"),idle=$("stageIdle"),start=$("startCamera"),stop=$("stopCamera"),status=$("cameraStatus"),guide=$("markerGuide");
 let scene=null,video=null,starting=false,timer=null;
 const setStatus=t=>status.textContent=t;
 function errorMessage(e){const n=e?.name;return n==="NotAllowedError"?"Permita o acesso à câmera nas configurações do Chrome.":n==="NotFoundError"?"Nenhuma câmera foi encontrada.":n==="NotReadableError"?"A câmera está sendo usada por outro aplicativo. Feche-o e tente novamente.":"Não foi possível iniciar a câmera. Verifique a permissão e tente novamente.";}
-function attachVideo(){
- const v=document.querySelector("video");if(!v)return false;video=v;v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.muted=true;v.classList.add("bioar-camera-feed");
- v.style.cssText+=";position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:1!important;display:block!important";
- if(v.parentElement!==stage)stage.insertBefore(v,stage.firstChild);return true;
-}
 function makeScene(){
  const s=document.createElement("a-scene");
- s.setAttribute("embedded","");s.setAttribute("xr-mode-ui","enabled: false");s.setAttribute("loading-screen","enabled: false");
+ s.setAttribute("embedded","");
+ s.setAttribute("xr-mode-ui","enabled: false");
+ s.setAttribute("loading-screen","enabled: false");
  s.setAttribute("renderer","alpha: true; antialias: true");
  s.setAttribute("arjs","sourceType: webcam; trackingMethod: best; debugUIEnabled: false");
  s.innerHTML='<a-marker preset="hiro" id="bioarHiroMarker"><a-entity position="0 0.15 0" scale="0.72 0.72 0.72"><a-sphere position="-0.18 0.35 0" radius="0.25" color="#d93448"></a-sphere><a-sphere position="0.18 0.35 0" radius="0.25" color="#c51f3d"></a-sphere><a-cone position="0 0.12 0" radius-bottom="0.31" radius-top="0.03" height="0.62" color="#b91e38"></a-cone><a-cylinder position="-0.13 0.78 0" radius="0.065" height="0.42" color="#b74a58"></a-cylinder><a-cylinder position="0.12 0.77 0" radius="0.07" height="0.38" color="#a92c43"></a-cylinder><a-entity position="0 1.15 0"><a-text value="CORACAO HUMANO" align="center" color="#ffffff" width="3.2"></a-text></a-entity></a-entity></a-marker><a-entity camera></a-entity>';
- const m=s.querySelector("#bioarHiroMarker");m.addEventListener("markerFound",()=>setStatus("MARCADOR HIRO DETECTADO"));m.addEventListener("markerLost",()=>setStatus("CÂMERA ATIVA · PROCURE O MARCADOR"));return s;
+ const marker=s.querySelector("#bioarHiroMarker");
+ marker.addEventListener("markerFound",()=>setStatus("MARCADOR HIRO DETECTADO"));
+ marker.addEventListener("markerLost",()=>setStatus("CÂMERA ATIVA · PROCURE O MARCADOR"));
+ return s;
 }
-function onInit(){starting=false;if(timer)clearTimeout(timer);attachVideo();idle.classList.add("hidden");stop.classList.add("visible");start.disabled=true;start.textContent="Câmera ativa";setStatus("CÂMERA ATIVA · PROCURE O MARCADOR HIRO");}
-function onError(e){const err=e?.detail?.error||e?.error;shutdown(false);idle.classList.remove("hidden");idle.querySelector("p").textContent=errorMessage(err);start.disabled=false;start.textContent="Tentar novamente";setStatus("ERRO AO INICIAR A CÂMERA");}
+function onCameraInit(){
+ setStatus("CÂMERA AUTORIZADA · PREPARANDO IMAGEM");
+}
+function onVideoLoaded(event){
+ const v=event?.detail?.component||document.getElementById("arjs-video");
+ if(!v){setStatus("CÂMERA INICIADA · AGUARDANDO VÍDEO");return;}
+ video=v;
+ video.setAttribute("playsinline","");
+ video.setAttribute("webkit-playsinline","");
+ video.muted=true;
+ starting=false;
+ if(timer){clearTimeout(timer);timer=null;}
+ document.body.classList.add("ar-active");
+ idle.classList.add("hidden");
+ guide.classList.add("visible");
+ stop.classList.add("visible");
+ start.disabled=true;
+ start.textContent="Câmera ativa";
+ setStatus("CÂMERA ATIVA · ENQUADRE O MARCADOR HIRO");
+ requestAnimationFrame(()=>window.dispatchEvent(new Event("resize")));
+}
+function onError(event){
+ const err=event?.detail?.error||event?.detail||event?.error;
+ shutdown(false);
+ document.body.classList.remove("ar-active");
+ idle.classList.remove("hidden");
+ guide.classList.remove("visible");
+ idle.querySelector("p").textContent=errorMessage(err);
+ start.disabled=false;
+ start.textContent="Tentar novamente";
+ setStatus("ERRO AO INICIAR A CÂMERA");
+}
 function startCamera(){
- if(starting||scene)return;if(!window.AFRAME){idle.querySelector("p").textContent="A biblioteca de RA não carregou. Verifique a conexão e recarregue.";return;}
- starting=true;start.disabled=true;start.textContent="Iniciando…";setStatus("AGUARDANDO PERMISSÃO DA CÂMERA");
- window.addEventListener("camera-init",onInit,{once:true});window.addEventListener("camera-error",onError,{once:true});
- scene=makeScene();mount.appendChild(scene);
- timer=setTimeout(()=>{if(starting){shutdown(false);idle.classList.remove("hidden");idle.querySelector("p").textContent="A câmera demorou para responder. Confira a permissão do Chrome e tente novamente.";start.disabled=false;start.textContent="Tentar novamente";setStatus("TEMPO ESGOTADO");}},15000);
+ if(starting||scene)return;
+ if(!window.AFRAME){
+  idle.querySelector("p").textContent="A biblioteca de RA não carregou. Verifique a conexão e recarregue a página.";
+  start.disabled=false;
+  setStatus("BIBLIOTECA DE RA INDISPONÍVEL");
+  return;
+ }
+ starting=true;
+ start.disabled=true;
+ start.textContent="Iniciando…";
+ setStatus("AGUARDANDO PERMISSÃO DA CÂMERA");
+ window.addEventListener("camera-init",onCameraInit);
+ window.addEventListener("arjs-video-loaded",onVideoLoaded,{once:true});
+ window.addEventListener("camera-error",onError,{once:true});
+ scene=makeScene();
+ mount.appendChild(scene);
+ timer=setTimeout(()=>{
+  if(starting){
+   shutdown(false);
+   idle.classList.remove("hidden");
+   guide.classList.remove("visible");
+   idle.querySelector("p").textContent="A câmera não concluiu a inicialização. Confira a permissão do Chrome e tente novamente.";
+   start.disabled=false;
+   start.textContent="Tentar novamente";
+   setStatus("TEMPO ESGOTADO");
+  }
+ },20000);
 }
 function shutdown(reset=true){
- window.removeEventListener("camera-init",onInit);window.removeEventListener("camera-error",onError);if(timer)clearTimeout(timer);
- if(video){try{video.pause();const stream=video.srcObject;if(stream?.getTracks)stream.getTracks().forEach(t=>t.stop());video.srcObject=null;video.remove();}catch(e){}video=null;}
- if(scene){try{scene.systems?.arjs?.arToolkitSource?.stop?.();}catch(e){}scene.remove();scene=null;}
- starting=false;stop.classList.remove("visible");if(reset){idle.classList.remove("hidden");start.disabled=false;start.textContent="Ativar câmera";idle.querySelector("p").textContent="Posicione o marcador Hiro inteiro dentro deste quadrado. A câmera só será ativada quando você tocar no botão.";setStatus("CÂMERA DESLIGADA");}
+ window.removeEventListener("camera-init",onCameraInit);
+ window.removeEventListener("arjs-video-loaded",onVideoLoaded);
+ window.removeEventListener("camera-error",onError);
+ if(timer){clearTimeout(timer);timer=null;}
+ const activeVideo=video||document.getElementById("arjs-video");
+ if(activeVideo){
+  try{
+   activeVideo.pause();
+   const stream=activeVideo.srcObject;
+   if(stream?.getTracks)stream.getTracks().forEach(track=>track.stop());
+   activeVideo.srcObject=null;
+   activeVideo.remove();
+  }catch(e){}
+ }
+ video=null;
+ if(scene){
+  try{scene.pause();scene.remove();}catch(e){}
+  scene=null;
+ }
+ mount.innerHTML="";
+ document.body.classList.remove("ar-active");
+ guide.classList.remove("visible");
+ starting=false;
+ stop.classList.remove("visible");
+ if(reset){
+  idle.classList.remove("hidden");
+  start.disabled=false;
+  start.textContent="Ativar câmera";
+  idle.querySelector("p").textContent="Posicione o marcador Hiro inteiro dentro deste quadrado. A câmera só será ativada quando você tocar no botão.";
+  setStatus("CÂMERA DESLIGADA");
+ }
 }
-start.addEventListener("click",startCamera);stop.addEventListener("click",()=>shutdown(true));window.addEventListener("pagehide",()=>shutdown(false));
+start.addEventListener("click",startCamera);
+stop.addEventListener("click",()=>shutdown(true));
+window.addEventListener("pagehide",()=>shutdown(false));
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
 })();
 </script>
