@@ -1,51 +1,40 @@
 # BioAR — Biologia em Realidade Aumentada
 
-Projeto didático para explorar conteúdos de Biologia usando realidade aumentada no navegador.
-
-## Estrutura atual
-
-- `index.html`: interface do BioAR e protótipo de anatomia.
-- `manifest.webmanifest`: metadados do aplicativo web.
-- `sw.js`: cache inicial da estrutura da aplicação.
-- `.github/workflows/bioar-deploy.yml`: publicação do BioAR no GitHub Pages.
+Aplicação educacional de realidade aumentada, desenvolvida com foco no uso em celulares pelo navegador.
 
 ## Interface mobile-first
 
-A interface é otimizada primeiro para celulares Android e iOS no navegador, com área de câmera ampla, controles de toque, painéis compactos e adaptação para orientação retrato e paisagem. Não é necessário instalar um APK.
+- Layout adaptado primeiro para celulares, em retrato e paisagem.
+- Área de leitura quadrada para o marcador Hiro.
+- A câmera permanece desligada ao abrir a página.
+- A câmera é inicializada somente depois que a pessoa toca em **Ativar câmera**.
+- Botão para desligar a câmera e interromper as trilhas de mídia.
+- Painéis de conteúdo abaixo da visualização da câmera em telas menores.
 
 ## Protótipo atual
 
-- Módulo inicial de anatomia humana.
-- Marcador Hiro padrão do AR.js para validar o rastreamento.
-- Representação 3D simplificada do coração.
-- Painel educativo com informações sobre coração, pulmões e cérebro.
-- Interface sem modo ou botão de VR.
-- Feed de vídeo reposicionado dentro do quadro do laboratório, com camadas de vídeo e 3D separadas e sem observador contínuo do DOM.
+- Rastreamento de marcador Hiro com AR.js 3.4.7.
+- Cena A-Frame criada somente após a interação do usuário.
+- Representação geométrica demonstrativa do coração.
+- Informações textuais sobre coração, pulmões e cérebro.
+
+O coração é uma representação 3D simplificada para validar o rastreamento, não um modelo anatômico científico. Os botões de órgãos atualizam o painel de informação; a seleção de malhas 3D será desenvolvida posteriormente.
 
 ## Como testar
 
-1. Abra o site em **https://brenner279.github.io/BioRA/** no Chrome Android.
-2. Quando o navegador solicitar, permita o acesso à câmera.
-3. O feed da câmera deve aparecer dentro do quadro azul do laboratório. Toque em **Mostrar câmera** para retirar a tela de orientação.
-4. Aponte para um marcador Hiro impresso, inteiro no enquadramento e bem iluminado.
-
-A captura da câmera é iniciada pelo AR.js quando a cena AR estática é carregada. O botão do BioAR apenas oculta a tela de orientação; não é um controle de modo VR/XR.
+1. Abra https://brenner279.github.io/BioRA/ no Chrome do celular.
+2. A página deve abrir sem pedir acesso à câmera.
+3. Toque em **Ativar câmera** e conceda a permissão.
+4. Posicione o marcador Hiro inteiro dentro do quadro quadrado.
+5. Toque em **Desligar câmera** para encerrar a experiência.
 
 ## Tecnologias
 
 - A-Frame 1.6.0
-- AR.js 3.4.7 (build A-Frame para rastreamento de marcadores)
+- AR.js 3.4.7 (marcador Hiro)
 - HTML, CSS e JavaScript
 - GitHub Pages
 
-## Próximas etapas
-
-1. Criar marcadores ilustrados personalizados para o BioAR, com rastreamento por imagem (MindAR).
-2. Integrar modelos anatômicos 3D reais em formato GLB.
-3. Adicionar seleção e destaque visual das estruturas anatômicas.
-4. Desenvolver as etapas de metamorfose da borboleta e do sapo.
-5. Otimizar os modelos e bibliotecas para uso em sala de aula e ampliar o funcionamento offline.
-
 ## Observação sobre conexão
 
-As bibliotecas A-Frame 1.6.0 e AR.js 3.4.7 ainda são carregadas de uma CDN. Portanto, a experiência com câmera/RA requer conexão com a internet. O cache atual cobre apenas arquivos básicos da aplicação; o funcionamento offline completo será implementado depois de incluir bibliotecas e modelos 3D localmente.
+As bibliotecas A-Frame e AR.js são carregadas de uma CDN. Portanto, a experiência com câmera/RA requer conexão com a internet. O cache cobre apenas os arquivos básicos da aplicação; o funcionamento offline completo será desenvolvido depois.
