@@ -4,6 +4,9 @@
 <link rel="manifest" href="./manifest.webmanifest"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script><script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.8/aframe/build/aframe-ar.js"></script>
 <style>
+/* BioAR usa AR.js por marcador: esconder controles XR/VR do A-Frame como salvaguarda visual. */
+.a-enter-vr,.a-enter-vr-button,.a-enter-ar,.a-enter-ar-button{display:none!important;visibility:hidden!important;pointer-events:none!important}
+#arMount{position:absolute;inset:0;width:100%;height:100%;z-index:1}
 :root{--navy:#102b46;--blue:#176b87;--teal:#24a69a;--ink:#183247;--muted:#607587;--paper:#f4f8fa;--line:#dce7ed;--shadow:0 18px 55px #163b5314}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",sans-serif}button{font:inherit;cursor:pointer}.topbar{height:72px;padding:0 clamp(18px,5vw,72px);display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}.brand{display:flex;align-items:center;gap:11px;font-family:Manrope,sans-serif;font-weight:800;color:var(--navy);font-size:21px}.brand-mark{width:37px;height:37px;border-radius:12px;background:linear-gradient(145deg,var(--teal),#176b87);display:grid;place-items:center;color:white;font-size:20px}.top-tag{font-size:12px;font-weight:700;color:#247c78;background:#e7f6f2;border:1px solid #ccebe3;border-radius:30px;padding:8px 12px}.hero{padding:62px clamp(20px,7vw,100px) 48px;background:radial-gradient(circle at 85% 15%,#d9f0ed 0,transparent 27%),linear-gradient(120deg,#f8fbfc,#eaf3f6);display:grid;grid-template-columns:1.3fr .7fr;gap:30px;align-items:center}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--teal);font-weight:800}.hero h1{font:800 clamp(34px,5vw,58px)/1.06 Manrope,sans-serif;letter-spacing:-2px;color:var(--navy);margin:15px 0}.hero p{font-size:17px;line-height:1.7;color:var(--muted);max-width:650px;margin:0}.hero-art{height:220px;display:grid;place-items:center}.orbit{width:190px;height:190px;border:1px solid #a6d9d2;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 0 22px #dff1ed,0 0 0 45px #eaf6f3}.orbit span{font-size:82px;filter:drop-shadow(0 12px 14px #1c526433)}.container{max-width:1180px;margin:auto;padding:42px 22px 80px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:22px}.section-head h2{font:800 25px Manrope;color:var(--navy);margin:6px 0}.section-head p{color:var(--muted);margin:0}.modules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.module{background:white;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow);display:flex;gap:18px;align-items:flex-start}.module-icon{width:54px;height:54px;border-radius:16px;background:#e8f5f2;display:grid;place-items:center;font-size:27px;flex:none}.module:nth-child(2) .module-icon{background:#fff3e7}.module h3{font:700 18px Manrope;margin:2px 0 7px;color:var(--navy)}.module p{font-size:14px;line-height:1.6;color:var(--muted);margin:0 0 15px}.pill{display:inline-flex;border-radius:30px;background:#edf4f7;color:#496477;font-size:11px;font-weight:700;padding:6px 10px}.workspace{margin-top:42px;background:white;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}.workspace-head{padding:22px 25px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:12px}.workspace-head h2{font:800 21px Manrope;margin:0;color:var(--navy)}.workspace-head p{margin:5px 0 0;color:var(--muted);font-size:13px}.workspace-body{display:grid;grid-template-columns:1.1fr .9fr;min-height:440px}.ar-stage{background:#102b46;position:relative;min-height:420px;overflow:hidden}.ar-stage a-scene{position:absolute!important;inset:0;width:100%;height:100%;z-index:1}.ar-stage a-scene canvas{width:100%!important;height:100%!important;object-fit:cover}.stage-cover{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px;color:white;z-index:3;background:linear-gradient(145deg,#102b46,#174c65)}.stage-cover.hidden{display:none}.scan-symbol{width:94px;height:94px;border:2px solid #62d5c2;border-radius:22px;display:grid;place-items:center;font-size:42px;margin-bottom:18px;box-shadow:0 0 35px #24a69a55}.stage-cover h3{font:700 20px Manrope;margin:0 0 8px}.stage-cover p{font-size:13px;line-height:1.6;color:#c4d9e2;max-width:330px;margin:0}.stage-status{position:absolute;z-index:5;left:15px;bottom:15px;background:#071d2bd9;color:#d8f6ef;border:1px solid #3e7b7c;border-radius:30px;padding:8px 12px;font-size:11px;font-weight:700}.stage-actions{position:absolute;z-index:5;right:14px;top:14px;display:flex;gap:8px}.icon-btn{border:1px solid #ffffff55;background:#102b46cc;color:white;border-radius:10px;padding:9px 12px;font-size:12px}.details{padding:28px;display:flex;flex-direction:column}.details .eyebrow{margin-bottom:8px}.details h3{font:800 26px Manrope;color:var(--navy);margin:0 0 10px}.details>p{color:var(--muted);line-height:1.65;font-size:14px;margin:0 0 20px}.info-card{background:#f2f8f8;border:1px solid #dcefeb;border-radius:14px;padding:15px;margin-bottom:18px}.info-card strong{font-size:12px;color:#287b73;text-transform:uppercase;letter-spacing:.7px}.info-card p{font-size:13px;line-height:1.6;margin:7px 0 0;color:#496477}.organ-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}.organ-btn{border:1px solid var(--line);background:white;color:#476174;padding:9px 12px;border-radius:30px;font-size:12px;font-weight:700}.organ-btn.active{background:#e4f5f1;border-color:#a9ddd2;color:#176d68}.primary{background:linear-gradient(120deg,var(--teal),#176b87);color:white;border:0;border-radius:12px;padding:13px 17px;font-weight:700;box-shadow:0 8px 18px #167b7950}.secondary{background:white;color:var(--blue);border:1px solid #bfd5de;border-radius:12px;padding:12px 15px;font-weight:700}.button-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:auto}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}.step{background:white;border:1px solid var(--line);border-radius:15px;padding:17px}.step b{display:block;font:700 13px Manrope;color:var(--navy);margin-bottom:6px}.step span{font-size:12px;line-height:1.5;color:var(--muted)}footer{text-align:center;color:#78909f;font-size:12px;padding:28px;border-top:1px solid var(--line)}.notice{background:#fff8e9;border:1px solid #f0dfb7;color:#80632b;border-radius:12px;padding:12px 14px;font-size:12px;line-height:1.55;margin-top:15px}@media(max-width:760px){.hero{grid-template-columns:1fr;padding-top:42px}.hero-art{height:145px}.orbit{width:125px;height:125px}.orbit span{font-size:56px}.modules,.workspace-body{grid-template-columns:1fr}.workspace-head{align-items:flex-start;flex-direction:column}.ar-stage{min-height:360px}.details{padding:22px}.steps{grid-template-columns:1fr}.top-tag{font-size:10px}}
 </style></head>
 <body>
@@ -14,37 +17,79 @@
 <section class="modules"><article class="module"><div class="module-icon">🫀</div><div><h3>Anatomia humana</h3><p>Conheça órgãos, localizações e funções dos principais sistemas do corpo humano.</p><span class="pill">MÓDULO EM DESENVOLVIMENTO</span></div></article><article class="module"><div class="module-icon">🦋</div><div><h3>Metamorfose dos animais</h3><p>Acompanhe as etapas do ciclo de vida da borboleta e do sapo.</p><span class="pill">PRÓXIMA ETAPA</span></div></article></section>
 <section class="workspace" id="experiencia"><div class="workspace-head"><div><h2>Laboratório de realidade aumentada</h2><p>Protótipo 01 • Anatomia: coração humano</p></div><span class="pill">RA COM MARCADOR</span></div>
 <div class="workspace-body"><div class="ar-stage" id="arStage">
-<div class="stage-cover" id="stageCover"><div class="scan-symbol">⌗</div><h3>Prepare o marcador Hiro</h3><p>Permita o acesso à câmera e aponte para o marcador Hiro impresso. O modelo 3D aparecerá sobre ele.</p><div style="margin-top:18px"><button class="primary" id="startCamera">Ativar câmera</button></div></div>
-<div class="stage-actions"><button class="icon-btn" id="restartCamera">Reiniciar</button></div><div class="stage-status" id="stageStatus">CÂMERA DESLIGADA</div>
-<div id="arMount"></div>
-          <template id="arSceneTemplate">
-          <a-scene id="arScene" embedded vr-mode-ui="enabled:false" renderer="logarithmicDepthBuffer:true;colorManagement:true" arjs="sourceType: webcam; detectionMode: mono; debugUIEnabled: false">
-<a-marker preset="hiro" id="hiroMarker"><a-entity id="heartModel" position="0 0.15 0" scale="0.72 0.72 0.72">
-<a-sphere position="-0.18 0.35 0" radius="0.25" color="#d93448" material="roughness:0.42"></a-sphere><a-sphere position="0.18 0.35 0" radius="0.25" color="#c51f3d" material="roughness:0.42"></a-sphere><a-cone position="0 0.12 0" radius-bottom="0.31" radius-top="0.03" height="0.62" color="#b91e38"></a-cone><a-cylinder position="-0.13 0.78 0" radius="0.065" height="0.42" color="#b74a58" rotation="0 0 -12"></a-cylinder><a-cylinder position="0.12 0.77 0" radius="0.07" height="0.38" color="#a92c43" rotation="0 0 12"></a-cylinder><a-cylinder position="0.29 0.46 0" radius="0.045" height="0.34" color="#327da0" rotation="0 0 38"></a-cylinder><a-cylinder position="-0.29 0.46 0" radius="0.045" height="0.34" color="#327da0" rotation="0 0 -38"></a-cylinder><a-entity position="0 1.15 0"><a-text value="CORAÇÃO HUMANO" align="center" color="#ffffff" width="3.2" scale="0.7 0.7 0.7"></a-text></a-entity></a-entity></a-marker><a-entity camera></a-entity></a-scene>
-
-          </template></div>
+<div class="stage-cover" id="stageCover"><div class="scan-symbol">⌗</div><h3>Autorize a câmera</h3><p>O navegador solicitará acesso à câmera. Depois da autorização, toque no botão abaixo para visualizar a experiência e aponte para o marcador Hiro impresso.</p><div style="margin-top:18px"><button class="primary" id="startCamera">Mostrar câmera</button></div></div>
+<div class="stage-actions"><button class="icon-btn" id="restartCamera">Reiniciar</button></div><div class="stage-status" id="stageStatus">AGUARDANDO PERMISSÃO DA CÂMERA</div>
+<div id="arMount">
+          <a-scene id="arScene" embedded
+            xr-mode-ui="enabled: false"
+            loading-screen="enabled: false"
+            renderer="logarithmicDepthBuffer: true; colorManagement: true; alpha: true"
+            arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false">
+            <a-marker preset="hiro" id="hiroMarker">
+              <a-entity id="heartModel" position="0 0.15 0" scale="0.72 0.72 0.72">
+                <a-sphere position="-0.18 0.35 0" radius="0.25" color="#d93448" material="roughness: 0.42"></a-sphere>
+                <a-sphere position="0.18 0.35 0" radius="0.25" color="#c51f3d" material="roughness: 0.42"></a-sphere>
+                <a-cone position="0 0.12 0" radius-bottom="0.31" radius-top="0.03" height="0.62" color="#b91e38"></a-cone>
+                <a-cylinder position="-0.13 0.78 0" radius="0.065" height="0.42" color="#b74a58" rotation="0 0 -12"></a-cylinder>
+                <a-cylinder position="0.12 0.77 0" radius="0.07" height="0.38" color="#a92c43" rotation="0 0 12"></a-cylinder>
+                <a-cylinder position="0.29 0.46 0" radius="0.045" height="0.34" color="#327da0" rotation="0 0 38"></a-cylinder>
+                <a-cylinder position="-0.29 0.46 0" radius="0.045" height="0.34" color="#327da0" rotation="0 0 -38"></a-cylinder>
+                <a-entity position="0 1.15 0"><a-text value="CORAÇÃO HUMANO" align="center" color="#ffffff" width="3.2" scale="0.7 0.7 0.7"></a-text></a-entity>
+              </a-entity>
+            </a-marker>
+            <a-entity camera></a-entity>
+          </a-scene>
+          </div></div>
 <aside class="details"><div class="eyebrow">Explorando o organismo</div><h3 id="organTitle">Coração</h3><p id="organDescription">O coração é um órgão muscular que funciona como uma bomba, impulsionando o sangue para os pulmões e para todo o corpo.</p><div class="info-card"><strong>Função principal</strong><p id="organFunction">Manter a circulação sanguínea, levando oxigênio e nutrientes às células e ajudando a remover resíduos.</p></div><div class="eyebrow">Outras estruturas</div><div class="organ-list"><button class="organ-btn active" data-organ="heart">Coração</button><button class="organ-btn" data-organ="lungs">Pulmões</button><button class="organ-btn" data-organ="brain">Cérebro</button></div><div class="button-row"><button class="primary" id="showCamera">Iniciar experiência</button><button class="secondary" id="markerHelp">Como usar o marcador?</button></div><div class="notice" id="helpNotice" hidden>Use o marcador Hiro: imprima a imagem oficial em tamanho suficiente, mantenha-a plana e bem iluminada e aponte a câmera a cerca de 20–50 cm. O marcador deve ficar inteiro dentro do enquadramento.</div></aside></div></section>
 <section class="steps"><div class="step"><b>01 · Aponte</b><span>Autorize a câmera e enquadre o marcador impresso.</span></div><div class="step"><b>02 · Explore</b><span>Observe o modelo 3D sobre o marcador e selecione os conteúdos.</span></div><div class="step"><b>03 · Aprenda</b><span>Leia as informações científicas e relacione forma e função.</span></div></section></main><footer>BioAR • Recurso didático experimental para o ensino de Ciências e Biologia.</footer>
 <script>
 const organs={heart:{title:"Coração",description:"O coração é um órgão muscular que funciona como uma bomba, impulsionando o sangue para os pulmões e para todo o corpo.",fn:"Manter a circulação sanguínea, levando oxigênio e nutrientes às células e ajudando a remover resíduos."},lungs:{title:"Pulmões",description:"Os pulmões são dois órgãos esponjosos localizados na caixa torácica. Neles ocorre a troca de gases entre o ar e o sangue.",fn:"Captar oxigênio para o organismo e eliminar dióxido de carbono durante a expiração."},brain:{title:"Cérebro",description:"O cérebro é a principal estrutura do encéfalo e integra informações sensoriais, pensamentos, memória, linguagem e movimentos voluntários.",fn:"Processar informações e coordenar diversas atividades do organismo, incluindo pensamento, memória e controle dos movimentos."}};
 document.querySelectorAll("[data-organ]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("[data-organ]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");const o=organs[btn.dataset.organ];document.getElementById("organTitle").textContent=o.title;document.getElementById("organDescription").textContent=o.description;document.getElementById("organFunction").textContent=o.fn;}));
-const cover=document.getElementById("stageCover"),status=document.getElementById("stageStatus");
-const mount=document.getElementById("arMount"),sceneTemplate=document.getElementById("arSceneTemplate");
-let activeScene=null;
-function start(){
-  if(activeScene)return;
-  status.textContent="SOLICITANDO ACESSO À CÂMERA…";
+const cover=document.getElementById("stageCover");
+const status=document.getElementById("stageStatus");
+const scene=document.getElementById("arScene");
+const marker=document.getElementById("hiroMarker");
+let cameraReady=false;
+let cameraFailed=false;
+
+/* AR.js inicia a captura quando a cena estática é carregada. */
+window.addEventListener("camera-init",()=>{
+  cameraReady=true;
+  cameraFailed=false;
+  status.textContent="CÂMERA ATIVA • Aponte para o marcador Hiro";
+  const title=cover.querySelector("h3");
+  const message=cover.querySelector("p");
+  if(title)title.textContent="Câmera pronta";
+  if(message)message.textContent="A câmera já está ativa. Toque em Mostrar câmera e aponte para o marcador Hiro impresso.";
+  const button=document.getElementById("startCamera");
+  if(button)button.textContent="Mostrar câmera";
+});
+window.addEventListener("camera-error",(event)=>{
+  cameraFailed=true;
+  cameraReady=false;
+  status.textContent="ERRO AO ACESSAR A CÂMERA";
+  cover.classList.remove("hidden");
+  const title=cover.querySelector("h3");
+  const message=cover.querySelector("p");
+  if(title)title.textContent="Não foi possível abrir a câmera";
+  const error=event.error||event.detail?.error;
+  const reason=error?.name==="NotAllowedError"?"Permita o acesso à câmera nas configurações do site no Chrome."
+    :error?.name==="NotFoundError"?"Nenhuma câmera foi encontrada neste dispositivo."
+    :error?.name==="NotReadableError"?"A câmera pode estar sendo usada por outro aplicativo. Feche outros apps que usam a câmera e tente novamente."
+    :"Verifique a permissão da câmera e abra o BioAR em uma página HTTPS pelo Chrome.";
+  if(message)message.textContent=reason;
+  const button=document.getElementById("startCamera");
+  if(button)button.textContent="Tentar novamente";
+});
+marker.addEventListener("markerFound",()=>status.textContent="MARCADOR DETECTADO • MODELO ATIVO");
+marker.addEventListener("markerLost",()=>status.textContent=cameraReady?"CÂMERA ATIVA • PROCURANDO MARCADOR…":"AGUARDANDO CÂMERA");
+function showCamera(){
+  if(cameraFailed){location.reload();return;}
   cover.classList.add("hidden");
-  window.addEventListener("camera-init",()=>{status.textContent="CÂMERA ATIVA • Aponte para o marcador Hiro";},{once:true});
-  window.addEventListener("camera-error",()=>{status.textContent="NÃO FOI POSSÍVEL ACESSAR A CÂMERA";cover.classList.remove("hidden");if(activeScene){activeScene.remove();activeScene=null;}},{once:true});
-  mount.appendChild(sceneTemplate.content.cloneNode(true));
-  activeScene=mount.querySelector("#arScene");
-  const marker=mount.querySelector("#hiroMarker");
-  marker.addEventListener("markerFound",()=>status.textContent="MARCADOR DETECTADO • MODELO ATIVO");
-  marker.addEventListener("markerLost",()=>status.textContent="PROCURANDO MARCADOR…");
+  status.textContent=cameraReady?"CÂMERA ATIVA • Aponte para o marcador Hiro":"AGUARDANDO PERMISSÃO DA CÂMERA…";
 }
-document.getElementById("startCamera").addEventListener("click",start);
-document.getElementById("showCamera").addEventListener("click",()=>{document.getElementById("experiencia").scrollIntoView({behavior:"smooth"});start()});
+document.getElementById("startCamera").addEventListener("click",showCamera);
+document.getElementById("showCamera").addEventListener("click",()=>{document.getElementById("experiencia").scrollIntoView({behavior:"smooth"});showCamera();});
 document.getElementById("restartCamera").addEventListener("click",()=>location.reload());
 document.getElementById("markerHelp").addEventListener("click",()=>{const n=document.getElementById("helpNotice");n.hidden=!n.hidden});
 window.addEventListener("load",()=>{if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});});
