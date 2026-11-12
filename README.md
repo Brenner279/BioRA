@@ -13,11 +13,10 @@ Atlas educativo de anatomia humana em realidade aumentada, desenvolvido como PWA
 
 ## Publicação
 
-1. Abra **Settings → Pages** no GitHub.
-2. Em **Build and deployment**, escolha **Deploy from a branch**.
-3. Selecione a branch `main` e a pasta `/(root)`.
-4. Salve e aguarde a publicação.
-5. Acesse: https://brenner279.github.io/BioRA/
+1. O repositório contém um workflow em `.github/workflows/anatora-deploy.yml`.
+2. No GitHub, abra **Settings → Pages** e selecione **GitHub Actions** como origem de publicação, caso ainda não esteja selecionada.
+3. O workflow publica automaticamente cada atualização da branch `main`.
+4. Acesse: https://brenner279.github.io/BioRA/
 
 ## Ativar o rastreamento do cartão
 
