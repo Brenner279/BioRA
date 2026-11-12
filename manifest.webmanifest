@@ -1,1 +1,14 @@
-{"name":"BioAR — Biologia em Realidade Aumentada","short_name":"BioAR","description":"Experiências de aprendizagem de Biologia com realidade aumentada.","lang":"pt-BR","start_url":"./","scope":"./","display":"standalone","background_color":"#f4f8fa","theme_color":"#102b46","icons":[]}
+{
+  "name": "AnatoRA 3D — Anatomia em Realidade Aumentada",
+  "short_name": "AnatoRA 3D",
+  "description": "Atlas educativo de anatomia humana em 3D e realidade aumentada.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f7fa",
+  "theme_color": "#10243d",
+  "icons": [
+    { "src": "./assets/images/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
