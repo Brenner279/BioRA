@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CASA INTELIGENTE VIRTUAL - Tecnologia, programação e economia de energia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --wood-dark: #6b3e26;
+            --wood-mid: #8c5230;
+            --wood-light: #d99b52;
+            --wall-outer: #f6b656;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .title-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Animação do Ventilador de Teto */
+        @keyframes spinFan {
+            0% { transform: scaleX(1); }
+            25% { transform: scaleX(0.2); }
+            50% { transform: scaleX(-1); }
+            75% { transform: scaleX(0.2); }
+            100% { transform: scaleX(1); }
+        }
+        .fan-spinning {
+            animation: spinFan 0.28s infinite linear;
+            transform-origin: 315px 62px;
+        }
+
+        /* Animação do Ventilador do Ícone Lateral */
+        @keyframes spinIconFan {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .icon-fan-spinning {
+            animation: spinIconFan 0.6s infinite linear;
+            transform-origin: 28px 25px;
+        }
+
+        /* Animação de fluxo de ar do Ar-Condicionado */
+        @keyframes airWave {
+            0% {
+                stroke-dashoffset: 40;
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 0.85;
+            }
+            100% {
+                stroke-dashoffset: 0;
+                opacity: 0.1;
+            }
+        }
+        .air-stream {
+            stroke-dasharray: 12 8;
+            animation: airWave 1.1s infinite linear;
+        }
+
+        /* Brilho pulsante suave para luzes e TV */
+        @keyframes softPulse {
+            0%, 100% { opacity: 0.85; }
+            50% { opacity: 1; }
+        }
+        .glow-active {
+            animation: softPulse 2.5s infinite ease-in-out;
+        }
+
+        /* Flutuação de partículas frias */
+        @keyframes snowDrop {
+            0% { transform: translateY(0px); opacity: 0; }
+            30% { opacity: 0.9; }
+            100% { transform: translateY(45px); opacity: 0; }
+        }
+        .cold-particle {
+            animation: snowDrop 1.8s infinite ease-in;
+        }
+
+        /* Cursor interativo nos móveis/aparelhos da casa */
+        .interactive-appliance {
+            cursor: pointer;
+            transition: filter 0.2s ease, transform 0.2s ease;
+        }
+        .interactive-appliance:hover {
+            filter: drop-shadow(0px 0px 8px rgba(255, 230, 0, 0.9));
+        }
+
+        /* Estilo de botões 3D cartoon */
+        .btn-pill-on {
+            background: linear-gradient(180deg, #32d74b 0%, #199a2c 100%);
+            box-shadow: 0 3px 0 #0f621b, inset 0 2px 2px rgba(255,255,255,0.45);
+        }
+        .btn-pill-off {
+            background: linear-gradient(180deg, #ff453a 0%, #c41e14 100%);
+            box-shadow: 0 3px 0 #7d110b, inset 0 2px 2px rgba(255,255,255,0.45);
+        }
+        .btn-pill-on:active, .btn-pill-off:active {
+            transform: translateY(2px);
+        }
+
+        .card-control {
+            background: linear-gradient(180deg, #ffffff 0%, #eaf6ff 100%);
+            border: 3px solid #579fd6;
+            box-shadow: 0 5px 0 rgba(43, 91, 132, 0.35);
+        }
+
+        .energy-panel-box {
+            background: linear-gradient(180deg, #5cc3ff 0%, #268ce8 100%);
+            border: 4px solid #16569b;
+            box-shadow: 0 6px 0 rgba(15, 52, 96, 0.45);
+        }
+
+        .challenge-card {
+            background: linear-gradient(180deg, #36b336 0%, #197a1d 100%);
+            border: 3.5px solid #86efac;
+            box-shadow: 0 6px 0 #0f4c12, inset 0 2px 4px rgba(255,255,255,0.35);
+        }
+
+        /* Scrollbar customizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-[#4facfe] via-[#8fd3f4] to-[#56ab2f] flex flex-col items-center justify-between p-2 sm:p-4 relative">
+
+    <!-- NUVENS E CENÁRIO DE FUNDO FIXO -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <!-- Céu e Nuvens -->
+        <svg class="w-full h-full" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#3a9fef"/>
+                    <stop offset="55%" stop-color="#9be2fe"/>
+                    <stop offset="80%" stop-color="#d4f7dc"/>
+                    <stop offset="100%" stop-color="#4ca626"/>
+                </linearGradient>
+                <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#68c72e"/>
+                    <stop offset="100%" stop-color="#2e7d12"/>
+                </linearGradient>
+            </defs>
+            <rect width="1440" height="900" fill="url(#skyGrad)"/>
+            
+            <!-- Nuvens estilizadas -->
+            <g fill="#ffffff" opacity="0.82">
+                <path d="M80 140 Q100 100 145 115 Q180 85 220 115 Q255 120 250 155 L70 155 Z"/>
+                <path d="M1150 100 Q1175 65 1220 80 Q1260 55 1295 90 Q1330 95 1325 130 L1140 130 Z"/>
+                <path d="M40 310 Q60 280 95 290 Q125 270 155 295 L35 295 Z" opacity="0.6"/>
+            </g>
+
+            <!-- Colinas de fundo -->
+            <path d="M0 640 Q320 550 680 640 T1440 610 L1440 900 L0 900 Z" fill="#5dbb29"/>
+            
+            <!-- Árvore Esquerda -->
+            <g transform="translate(10, 220)">
+                <rect x="45" y="260" width="38" height="220" rx="6" fill="#7c4728"/>
+                <circle cx="65" cy="210" r="85" fill="#328c19"/>
+                <circle cx="25" cy="240" r="65" fill="#3da321"/>
+                <circle cx="105" cy="240" r="65" fill="#2d7a16"/>
+                <circle cx="65" cy="150" r="70" fill="#4dbd2b"/>
+            </g>
+
+            <!-- Árvore Direita -->
+            <g transform="translate(1290, 140)">
+                <rect x="55" y="250" width="44" height="390" rx="8" fill="#7c4728"/>
+                <path d="M55 340 L15 290 L30 280 L65 320 Z" fill="#7c4728"/>
+                <circle cx="75" cy="180" r="95" fill="#2d7a16"/>
+                <circle cx="30" cy="220" r="75" fill="#3da321"/>
+                <circle cx="120" cy="210" r="70" fill="#328c19"/>
+                <circle cx="70" cy="115" r="80" fill="#52c430"/>
+            </g>
+
+            <!-- Gramado frontal -->
+            <rect x="0" y="740" width="1440" height="160" fill="url(#grassGrad)"/>
+        </svg>
+    </div>
+
+    <!-- BARRA DE FERRAMENTAS RÁPIDA NO TOPO -->
+    <div class="relative z-20 w-full max-w-6xl flex flex-wrap items-center justify-between gap-2 mb-1 px-2">
+        <div class="flex items-center gap-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-md border-2 border-blue-400">
+            <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs sm:text-sm font-extrabold text-slate-700">Modo Interativo: Clique nos botões ou direto nos aparelhos da casa!</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <button onclick="applyPreset('imagem')" class="text-xs sm:text-sm font-extrabold bg-amber-400 hover:bg-amber-300 text-slate-900 px-3 py-1.5 rounded-full shadow border-2 border-amber-600 transition flex items-center gap-1">
+                <span>📸</span> Cenário da Imagem (1.230 W)
+            </button>
+            <button onclick="openConfigModal()" class="text-xs sm:text-sm font-extrabold bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-full shadow border-2 border-sky-800 transition flex items-center gap-1">
+                <span>⚙️</span> Configurar Potências & Horas
+            </button>
+            <button onclick="openScenarioModal()" class="text-xs sm:text-sm font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-full shadow border-2 border-emerald-800 transition flex items-center gap-1">
+                <span>📊</span> Comparador & Missões
+            </button>
+            <button onclick="toggleSound()" id="soundBtn" class="text-xs sm:text-sm font-extrabold bg-white/90 hover:bg-white text-slate-700 px-3 py-1.5 rounded-full shadow border-2 border-slate-300 transition">
+                🔊 Som: ON
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTAINER PRINCIPAL DA CASA INTELIGENTE -->
+    <main class="relative z-10 w-full max-w-6xl my-auto">
+
+        <!-- ================= TELHADO E BANNER SUPERIOR ================= -->
+        <div class="relative w-full flex flex-col items-center pt-2">
+            <!-- SVG do Telhado Triangular Completo -->
+            <div class="w-full relative h-24 sm:h-32 md:h-36 flex items-end justify-center">
+                <svg class="w-full h-full overflow-visible" viewBox="0 0 1200 145" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="roofGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#8d3b20"/>
+                            <stop offset="100%" stop-color="#5e2512"/>
+                        </linearGradient>
+                        <linearGradient id="roofEdge" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#b55332"/>
+                            <stop offset="100%" stop-color="#752e17"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Sombra embaixo do beiral -->
+                    <polygon points="10,142 600,8 1190,142" fill="rgba(0,0,0,0.28)"/>
+                    <!-- Corpo do Telhado -->
+                    <polygon points="20,136 600,6 1180,136" fill="url(#roofGrad)" stroke="#471a0b" stroke-width="4"/>
+                    <!-- Linhas de telhas decorativas -->
+                    <line x1="160" y1="105" x2="1040" y2="105" stroke="#471a0b" stroke-width="2" opacity="0.45"/>
+                    <line x1="300" y1="74" x2="900" y2="74" stroke="#471a0b" stroke-width="2" opacity="0.45"/>
+                    <!-- Beiral inferior -->
+                    <rect x="12" y="130" width="1176" height="14" rx="5" fill="url(#roofEdge)" stroke="#471a0b" stroke-width="3"/>
+                </svg>
+
+                <!-- Ícone Casinha Azul à Esquerda do Banner -->
+                <div class="absolute left-[4%] sm:left-[9%] md:left-[12%] -top-1 sm:top-1 z-20 pointer-events-none transform -rotate-3">
+                    <svg class="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 drop-shadow-lg" viewBox="0 0 120 120">
+                        <!-- Telhado azul da casinha ícone -->
+                        <polygon points="15,58 60,15 105,58 93,58 60,27 27,58" fill="#0d5bd9" stroke="#ffffff" stroke-width="3"/>
+                        <rect x="78" y="23" width="12" height="22" fill="#0d5bd9" stroke="#ffffff" stroke-width="2"/>
+                        <!-- Corpo branco da casinha -->
+                        <rect x="27" y="52" width="66" height="52" rx="6" fill="#ffffff" stroke="#184a99" stroke-width="4"/>
+                        <!-- Janela em formato de cérebro/circuito digital -->
+                        <path d="M44,75 C44,61 76,61 76,75 L76,90 L44,90 Z" fill="#e0f2fe" stroke="#1d4ed8" stroke-width="3"/>
+                        <line x1="60" y1="63" x2="60" y2="90" stroke="#1d4ed8" stroke-width="3"/>
+                        <line x1="44" y1="77" x2="76" y2="77" stroke="#1d4ed8" stroke-width="3"/>
+                        <!-- Folhinha verde no canto da casinha -->
+                        <path d="M78,104 C78,84 106,78 110,92 C106,108 85,110 78,104 Z" fill="#2eb82e" stroke="#145214" stroke-width="2.5"/>
+                        <path d="M80,103 Q95,93 106,92" stroke="#a3f79b" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+
+                <!-- Placa Principal: CASA INTELIGENTE VIRTUAL -->
+                <div class="absolute inset-x-0 -top-2 sm:top-1 flex justify-center z-20 px-4">
+                    <div class="bg-gradient-to-b from-white via-[#f8fbff] to-[#e3effd] border-[4px] border-[#527bbd] rounded-3xl sm:rounded-[30px] px-5 sm:px-10 py-2 sm:py-3 shadow-[0_8px_0_rgba(30,58,138,0.35)] text-center max-w-2xl w-[82%] sm:w-auto">
+                        <h1 class="title-font text-xl sm:text-3xl md:text-4xl lg:text-[40px] font-extrabold text-[#12356b] tracking-tight leading-none drop-shadow-sm">
+                            CASA INTELIGENTE VIRTUAL
+                        </h1>
+                        <p class="text-xs sm:text-base md:text-xl font-extrabold text-[#1f4987] mt-0.5 sm:mt-1">
+                            Tecnologia, programação e economia de energia
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Folha Sustentável à Direita do Banner -->
+                <div class="absolute right-[4%] sm:right-[10%] md:right-[14%] -top-1 sm:top-2 z-20 pointer-events-none transform rotate-6">
+                    <svg class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 drop-shadow-lg" viewBox="0 0 100 100">
+                        <path d="M20,82 C18,42 52,14 88,16 C86,54 62,84 20,82 Z" fill="#2eb82e" stroke="#ffffff" stroke-width="5"/>
+                        <path d="M20,82 C18,42 52,14 88,16 C86,54 62,84 20,82 Z" fill="none" stroke="#157315" stroke-width="2.5"/>
+                        <path d="M16,86 Q50,50 82,22" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CORPO DA CASA (ESTRUTURA AMARELA/MADEIRA) ================= -->
+        <div class="bg-gradient-to-b from-[#f9c56a] to-[#eda642] border-x-[6px] border-b-[8px] border-[#78441e] rounded-b-xl shadow-2xl p-2.5 sm:p-4 relative">
+            
+            <!-- Grid Principal: Esquerda/Centro (Cômodos + Painel) | Direita (Coluna de Controles) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
+
+                <!-- COLUNA ESQUERDA + CENTRAL (9 COLUNAS NO DESKTOP): CÔMODOS E PAINEL -->
+                <div class="lg:col-span-9 flex flex-col gap-3.5">
+
+                    <!-- 1º ANDAR SUPERIOR: SALA DE ESTAR + QUARTO -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+
+                        <!-- ==================== SALA DE ESTAR (Esquerda Superior) ==================== -->
+                        <div class="md:col-span-6 bg-[#f7dec1] border-[5px] border-[#613922] rounded-lg relative overflow-hidden shadow-inner aspect-[16/10]">
+                            <!-- Etiqueta discreta do cômodo -->
+                            <div class="absolute top-2 left-2 z-10 bg-black/35 text-white text-[11px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm pointer-events-none">
+                                🛋️ Sala de Estar
+                            </div>
+
+                            <svg class="w-full h-full" viewBox="0 0 460 285" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <!-- Gradiente do feixe de luz da lâmpada de teto -->
+                                    <radialGradient id="lampGlowGrad" cx="50%" cy="20%" r="70%">
+                                        <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.95"/>
+                                        <stop offset="35%" stop-color="#fde047" stop-opacity="0.55"/>
+                                        <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+                                    </radialGradient>
+                                    <!-- Gradiente da Tela da TV Ligada -->
+                                    <linearGradient id="tvScreenOn" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stop-color="#38bdf8"/>
+                                        <stop offset="50%" stop-color="#1d4ed8"/>
+                                        <stop offset="100%" stop-color="#0f172a"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Parede de fundo e lateral -->
+                                <rect x="0" y="0" width="460" height="240" fill="#f7dec4"/>
+                                <polygon points="0,0 45,22 45,240 0,255" fill="#ebd0b5"/>
+                                <!-- Porta azul à esquerda -->
+                                <polygon points="8,48 34,58 34,242 8,252" fill="#5da9e9" stroke="#3b7bb5" stroke-width="2"/>
+                                
+                                <!-- Piso de madeira da sala -->
+                                <rect x="0" y="238" width="460" height="47" fill="#b06d3b"/>
+                                <rect x="0" y="235" width="460" height="6" fill="#7c4822"/>
+                                <!--Viga superior-->
+                                <rect x="0" y="0" width="460" height="8" fill="#5c361e"/>
+
+                                <!-- CONE DE LUZ DA LUMINÁRIA (Visível quando Lâmpada = Ligada) -->
+                                <g id="livingLampLight" class="glow-active">
+                                    <polygon points="115,48 25,245 235,245" fill="url(#lampGlowGrad)" pointer-events="none"/>
+                                    <circle cx="115" cy="55" r="38" fill="#fef08a" opacity="0.45" pointer-events="none"/>
+                                </g>
+
+                                <!-- QUADRO NA PAREDE -->
+                                <g transform="translate(172, 72)">
+                                    <rect x="0" y="0" width="68" height="52" rx="3" fill="#2b547e" stroke="#1b3754" stroke-width="2.5"/>
+                                    <rect x="5" y="5" width="58" height="42" fill="#bae6fd"/>
+                                    <!-- Sol e Montanhas no quadro -->
+                                    <circle cx="48" cy="16" r="6" fill="#fde047"/>
+                                    <path d="M5,38 Q22,20 38,34 T63,30 L63,47 L5,47 Z" fill="#4ade80"/>
+                                    <path d="M5,42 Q30,30 63,40 L63,47 L5,47 Z" fill="#16a34a"/>
+                                </g>
+
+                                <!-- PLANTA EM VASO À ESQUERDA -->
+                                <g transform="translate(42, 130)">
+                                    <!-- Vaso -->
+                                    <polygon points="12,75 44,75 39,112 17,112" fill="#c86432" stroke="#7c3817" stroke-width="2"/>
+                                    <rect x="9" y="70" width="38" height="8" rx="3" fill="#d97341" stroke="#7c3817" stroke-width="2"/>
+                                    <!-- Caule e folhas -->
+                                    <path d="M28,70 Q28,40 25,15" stroke="#166534" stroke-width="3.5" fill="none"/>
+                                    <path d="M28,58 Q5,48 8,32 Q25,35 28,58 Z" fill="#22c55e" stroke="#14532d" stroke-width="1.8"/>
+                                    <path d="M28,48 Q52,38 48,22 Q30,26 28,48 Z" fill="#4ade80" stroke="#14532d" stroke-width="1.8"/>
+                                    <path d="M27,32 Q8,20 14,6 Q28,12 27,32 Z" fill="#16a34a" stroke="#14532d" stroke-width="1.8"/>
+                                    <path d="M27,25 Q46,12 42,-2 Q26,5 27,25 Z" fill="#22c55e" stroke="#14532d" stroke-width="1.8"/>
+                                </g>
+
+                                <!-- SOFÁ AZUL -->
+                                <g transform="translate(95, 165)">
+                                    <!-- Pés -->
+                                    <rect x="12" y="70" width="8" height="10" fill="#4a2c18"/>
+                                    <rect x="155" y="70" width="8" height="10" fill="#4a2c18"/>
+                                    <!-- Encosto -->
+                                    <rect x="10" y="0" width="155" height="48" rx="14" fill="#1e88e5" stroke="#0d47a1" stroke-width="2.5"/>
+                                    <!-- Divisórias do encosto -->
+                                    <line x1="62" y1="4" x2="62" y2="45" stroke="#0d47a1" stroke-width="2"/>
+                                    <line x1="114" y1="4" x2="114" y2="45" stroke="#0d47a1" stroke-width="2"/>
+                                    <!-- Assento -->
+                                    <rect x="8" y="38" width="159" height="24" rx="8" fill="#29b6f6" stroke="#0d47a1" stroke-width="2.5"/>
+                                    <!-- Braços -->
+                                    <rect x="0" y="22" width="22" height="50" rx="10" fill="#1565c0" stroke="#0d47a1" stroke-width="2.5"/>
+                                    <rect x="153" y="22" width="22" height="50" rx="10" fill="#1565c0" stroke="#0d47a1" stroke-width="2.5"/>
+                                    <!-- Base inferior -->
+                                    <rect x="6" y="56" width="163" height="16" rx="5" fill="#1565c0" stroke="#0d47a1" stroke-width="2.5"/>
+                                </g>
+
+                                <!-- RACK E TELEVISÃO (Clicável) -->
+                                <g class="interactive-appliance" onclick="toggleDevice('tv')" transform="translate(290, 120)">
+                                    <title>Clique para ligar/desligar a TV</title>
+                                    <!-- Rack de Madeira -->
+                                    <rect x="0" y="88" width="148" height="36" rx="3" fill="#8c4a27" stroke="#4a2511" stroke-width="2.5"/>
+                                    <rect x="6" y="94" width="42" height="24" fill="#a65e36" stroke="#4a2511" stroke-width="1.8"/>
+                                    <rect x="53" y="94" width="42" height="11" fill="#262626"/>
+                                    <rect x="53" y="108" width="42" height="10" fill="#404040"/>
+                                    <rect x="100" y="94" width="42" height="24" fill="#a65e36" stroke="#4a2511" stroke-width="1.8"/>
+                                    <!-- Pés do Rack -->
+                                    <rect x="10" y="124" width="10" height="6" fill="#3b1d0c"/>
+                                    <rect x="128" y="124" width="10" height="6" fill="#3b1d0c"/>
+
+                                    <!-- Suporte da TV -->
+                                    <rect x="65" y="76" width="18" height="12" fill="#1e293b"/>
+                                    <rect x="46" y="85" width="56" height="5" rx="2" fill="#0f172a"/>
+
+                                    <!-- Moldura da TV -->
+                                    <rect x="12" y="2" width="124" height="76" rx="4" fill="#1e293b" stroke="#090d16" stroke-width="3"/>
+                                    <!-- Tela Desligada -->
+                                    <rect x="17" y="7" width="114" height="66" fill="#334155"/>
+
+                                    <!-- Conteúdo da Tela da TV Quando LIGADA -->
+                                    <g id="tvScreenActive">
+                                        <rect x="17" y="7" width="114" height="66" fill="url(#tvScreenOn)"/>
+                                        <!-- Paisagem/Programa ecológico passando na TV -->
+                                        <circle cx="105" cy="24" r="9" fill="#fde047" opacity="0.9"/>
+                                        <path d="M17,58 Q45,38 75,52 T131,45 L131,73 L17,73 Z" fill="#22c55e" opacity="0.85"/>
+                                        <!-- Ondas/Brilho na tela -->
+                                        <line x1="25" y1="16" x2="55" y2="16" stroke="#bae6fd" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+                                        <line x1="25" y1="24" x2="42" y2="24" stroke="#bae6fd" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+                                        <!-- LED Verde de TV Ligada -->
+                                        <circle cx="74" cy="75.5" r="2" fill="#4ade80"/>
+                                    </g>
+                                    <!-- LED Vermelho quando desligada -->
+                                    <circle id="tvLedOff" cx="74" cy="75.5" r="2" fill="#ef4444" class="hidden"/>
+                                </g>
+
+                                <!-- LUMINÁRIA DE TETO PENDENTE (Clicável) -->
+                                <g class="interactive-appliance" onclick="toggleDevice('lamp')" transform="translate(80, 8)">
+                                    <title>Clique para ligar/desligar a Lâmpada</title>
+                                    <!-- Cabo -->
+                                    <rect x="33" y="0" width="4" height="22" fill="#451a03"/>
+                                    <!-- Bulbo da lâmpada -->
+                                    <circle id="ceilingBulb" cx="35" cy="43" r="11" fill="#fef08a"/>
+                                    <!-- Cúpula -->
+                                    <path d="M5,42 Q35,12 65,42 Z" fill="#d97706" stroke="#451a03" stroke-width="2.5"/>
+                                    <ellipse cx="35" cy="42" rx="30" ry="5" fill="#fbbf24" stroke="#451a03" stroke-width="2"/>
+                                </g>
+
+                                <!-- VENTILADOR DE TETO (Clicável) -->
+                                <g class="interactive-appliance" onclick="toggleDevice('fan')">
+                                    <title>Clique para ligar/desligar o Ventilador</title>
+                                    <!-- Haste fixa no teto -->
+                                    <rect x="311" y="8" width="8" height="32" fill="#5c2d16" stroke="#361809" stroke-width="1.5"/>
+                                    <ellipse cx="315" cy="10" rx="14" ry="4" fill="#7c3f20" stroke="#361809" stroke-width="1.5"/>
+                                    <!-- Grupo das Pás Giratórias -->
+                                    <g id="ceilingFanBlades" class="fan-spinning">
+                                        <!-- Pá Esquerda -->
+                                        <path d="M305,42 L232,26 Q224,28 228,36 L302,48 Z" fill="#7c3f20" stroke="#361809" stroke-width="2"/>
+                                        <!-- Pá Direita -->
+                                        <path d="M325,42 L398,32 Q405,36 398,43 L325,49 Z" fill="#7c3f20" stroke="#361809" stroke-width="2"/>
+                                        <!-- Pá Frontal -->
+                                        <path d="M312,48 L286,74 Q292,80 302,75 L318,50 Z" fill="#5c2d16" stroke="#361809" stroke-width="2"/>
+                                        <!-- Pá Traseira -->
+                                        <path d="M318,39 L345,16 Q353,19 348,25 L322,44 Z" fill="#964f2a" stroke="#361809" stroke-width="2"/>
+                                    </g>
+                                    <!-- Motor central -->
+                                    <ellipse cx="315" cy="44" rx="18" ry="8" fill="#8c4a27" stroke="#361809" stroke-width="2"/>
+                                    <ellipse cx="315" cy="48" rx="10" ry="5" fill="#d97706" stroke="#361809" stroke-width="1.5"/>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- ==================== QUARTO (Direita Superior) ==================== -->
+                        <div class="md:col-span-6 bg-[#e9c8d9] border-[5px] border-[#613922] rounded-lg relative overflow-hidden shadow-inner aspect-[16/10]">
+                            <!-- Etiqueta discreta do cômodo -->
+                            <div class="absolute top-2 left-2 z-10 bg-black/35 text-white text-[11px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm pointer-events-none">
+                                🛏️ Quarto Climatizado
+                            </div>
+
+                            <svg class="w-full h-full" viewBox="0 0 460 285" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <radialGradient id="bedsideLampGlow" cx="50%" cy="50%" r="55%">
+                                        <stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/>
+                                        <stop offset="50%" stop-color="#fde047" stop-opacity="0.35"/>
+                                        <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+                                    </radialGradient>
+                                    <linearGradient id="acColdMist" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.65"/>
+                                        <stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Paredes do Quarto -->
+                                <rect x="0" y="0" width="460" height="240" fill="#dec0d1"/>
+                                <polygon points="0,0 45,22 45,240 0,255" fill="#d1b1c3"/>
+                                <polygon points="460,0 420,22 420,240 460,255" fill="#cba8bc"/>
+
+                                <!-- Piso de madeira -->
+                                <rect x="0" y="238" width="460" height="47" fill="#b06d3b"/>
+                                <rect x="0" y="235" width="460" height="6" fill="#7c4822"/>
+                                <rect x="0" y="0" width="460" height="8" fill="#5c361e"/>
+
+                                <!-- BRILHO DO ABAJUR (Sincronizado com Lâmpada) -->
+                                <g id="bedroomLampGlow" class="glow-active">
+                                    <circle cx="58" cy="158" r="68" fill="url(#bedsideLampGlow)" pointer-events="none"/>
+                                </g>
+
+                                <!-- CRIADO-MUDO E ABAJUR (Clicável para Lâmpada) -->
+                                <g class="interactive-appliance" onclick="toggleDevice('lamp')" transform="translate(22, 132)">
+                                    <title>Clique para ligar/desligar a Iluminação</title>
+                                    <!-- Abajur -->
+                                    <rect x="33" y="34" width="6" height="16" fill="#ca8a04"/>
+                                    <ellipse cx="36" cy="50" rx="13" ry="5" fill="#eab308" stroke="#713f12" stroke-width="1.8"/>
+                                    <polygon id="bedsideShade" points="22,8 50,8 58,36 14,36" fill="#fef08a" stroke="#a16207" stroke-width="2"/>
+                                    <!-- Mesa de cabeceira -->
+                                    <rect x="0" y="50" width="72" height="56" rx="3" fill="#b46332" stroke="#5c2d16" stroke-width="2.5"/>
+                                    <rect x="7" y="57" width="58" height="19" rx="2" fill="#c87642" stroke="#5c2d16" stroke-width="1.8"/>
+                                    <circle cx="36" cy="66" r="3" fill="#451a03"/>
+                                    <rect x="7" y="81" width="58" height="19" rx="2" fill="#c87642" stroke="#5c2d16" stroke-width="1.8"/>
+                                    <circle cx="36" cy="90" r="3" fill="#451a03"/>
+                                    <!-- Pés -->
+                                    <rect x="6" y="106" width="8" height="8" fill="#5c2d16"/>
+                                    <rect x="58" y="106" width="8" height="8" fill="#5c2d16"/>
+                                </g>
+
+                                <!-- CAMA DE CASAL -->
+                                <g transform="translate(115, 110)">
+                                    <!-- Cabeceira de Madeira -->
+                                    <path d="M0,10 Q65,-5 130,10 L130,85 L0,85 Z" fill="#8c4a27" stroke="#4a2511" stroke-width="3"/>
+                                    <rect x="10" y="18" width="50" height="52" rx="3" fill="#a65e36" stroke="#4a2511" stroke-width="2"/>
+                                    <rect x="70" y="18" width="50" height="52" rx="3" fill="#a65e36" stroke="#4a2511" stroke-width="2"/>
+                                    <!-- Travesseiros brancos -->
+                                    <rect x="16" y="45" width="46" height="24" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                                    <rect x="68" y="45" width="46" height="24" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                                    <!-- Colchão e Edredom Azul -->
+                                    <path d="M4,66 L232,66 Q256,68 258,92 L258,118 L4,118 Z" fill="#2563eb" stroke="#1e3a8a" stroke-width="2.5"/>
+                                    <!-- Dobra do lençol claro -->
+                                    <path d="M4,66 L155,66 Q175,85 170,115 L4,115 Z" fill="#60a5fa" stroke="#1e3a8a" stroke-width="2"/>
+                                    <!-- Estrutura de Madeira da Cama (Base e Pés) -->
+                                    <rect x="0" y="110" width="264" height="22" rx="3" fill="#9a552b" stroke="#4a2511" stroke-width="2.5"/>
+                                    <rect x="4" y="132" width="14" height="12" fill="#5c2d16"/>
+                                    <rect x="246" y="132" width="14" height="12" fill="#5c2d16"/>
+                                </g>
+
+                                <!-- AR-CONDICIONADO SPLIT NA PAREDE (Clicável) -->
+                                <g class="interactive-appliance" onclick="toggleDevice('ac')" transform="translate(230, 22)">
+                                    <title>Clique para ligar/desligar o Ar-Condicionado</title>
+
+                                    <!-- Efeito de Ar Gelado (Visível quando AC = Ligado) -->
+                                    <g id="acAirEffect" class="hidden">
+                                        <!-- Névoa fria -->
+                                        <polygon points="15,52 145,52 175,165 -20,165" fill="url(#acColdMist)" pointer-events="none"/>
+                                        <!-- Linhas de vento animadas -->
+                                        <path class="air-stream" d="M30,55 Q20,100 5,145" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                                        <path class="air-stream" d="M60,55 Q55,105 45,155" stroke="#0ea5e9" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                                        <path class="air-stream" d="M95,55 Q95,105 90,155" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                                        <path class="air-stream" d="M128,55 Q138,100 150,145" stroke="#0ea5e9" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                                        <!-- Flocos/partículas frias -->
+                                        <circle class="cold-particle" cx="45" cy="75" r="3" fill="#e0f2fe"/>
+                                        <circle class="cold-particle" cx="110" cy="85" r="3.5" fill="#e0f2fe" style="animation-delay: 0.5s"/>
+                                        <circle class="cold-particle" cx="78" cy="68" r="2.5" fill="#ffffff" style="animation-delay: 1s"/>
+                                    </g>
+
+                                    <!-- Corpo do Aparelho Split -->
+                                    <rect x="0" y="0" width="156" height="52" rx="12" fill="#f8fafc" stroke="#64748b" stroke-width="2.5"/>
+                                    <path d="M4,36 L152,36 L146,50 L10,50 Z" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+                                    <!-- Aleta difusora -->
+                                    <rect id="acFlap" x="14" y="41" width="128" height="6" rx="2" fill="#1e293b"/>
+                                    <!-- Visor Digital de Temperatura -->
+                                    <rect x="115" y="12" width="26" height="14" rx="3" fill="#0f172a"/>
+                                    <text id="acTempDisplay" x="128" y="22" font-size="9" font-weight="bold" fill="#38bdf8" text-anchor="middle">23°</text>
+                                    <!-- Detalhe azul frontal -->
+                                    <line x1="12" y1="28" x2="105" y2="28" stroke="#38bdf8" stroke-width="2.5"/>
+                                </g>
+                            </svg>
+                        </div>
+
+                    </div>
+
+                    <!-- VIGA DIVISÓRIA ENTRE OS DOIS ANDARES -->
+                    <div class="h-2.5 bg-gradient-to-r from-[#5c3419] via-[#7c4724] to-[#5c3419] rounded-full shadow"></div>
+
+                    <!-- 2º ANDAR INFERIOR: COZINHA + PAINEL DE ENERGIA -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-stretch">
+
+                        <!-- ==================== COZINHA (Esquerda Inferior) ==================== -->
+                        <div class="md:col-span-5 bg-[#e6d5c3] border-[5px] border-[#613922] rounded-lg relative overflow-hidden shadow-inner min-h-[250px] flex">
+                            <div class="absolute top-2 left-2 z-10 bg-black/35 text-white text-[11px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm pointer-events-none">
+                                🍳 Cozinha
+                            </div>
+
+                            <!-- Botão interativo da Geladeira no canto superior direito da cozinha -->
+                            <button onclick="toggleFridgeBase()" id="fridgeBadgeBtn" title="Clique para incluir/excluir a Geladeira no cálculo" class="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-slate-800 border border-slate-400 text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow transition flex items-center gap-1">
+                                <span>🧊 Geladeira:</span>
+                                <span id="fridgeStatusText" class="text-slate-600">Standby (0W)</span>
+                            </button>
+
+                            <svg class="w-full h-full" viewBox="0 0 380 260" preserveAspectRatio="xMidYMid slice">
+                                <!-- Parede e Azulejos -->
+                                <rect x="0" y="0" width="380" height="220" fill="#dfd3c3"/>
+                                <!-- Backsplash (azulejos claros atrás da pia) -->
+                                <rect x="105" y="95" width="260" height="55" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+                                <line x1="105" y1="115" x2="365" y2="115" stroke="#cbd5e1" stroke-width="1"/>
+                                <line x1="105" y1="135" x2="365" y2="135" stroke="#cbd5e1" stroke-width="1"/>
+                                <line x1="150" y1="95" x2="150" y2="150" stroke="#cbd5e1" stroke-width="1"/>
+                                <line x1="200" y1="95" x2="200" y2="150" stroke="#cbd5e1" stroke-width="1"/>
+                                <line x1="250" y1="95" x2="250" y2="150" stroke="#cbd5e1" stroke-width="1"/>
+                                <line x1="300" y1="95" x2="300" y2="150" stroke="#cbd5e1" stroke-width="1"/>
+
+                                <!-- Piso da cozinha -->
+                                <rect x="0" y="218" width="380" height="42" fill="#c88a51"/>
+                                <rect x="0" y="215" width="380" height="5" fill="#7c4822"/>
+
+                                <!-- Luz suave da Cozinha quando Lâmpada está ligada -->
+                                <circle id="kitchenLightGlow" cx="210" cy="20" r="120" fill="#fef08a" opacity="0.22" pointer-events="none"/>
+
+                                <!-- JANELA COM VISTA PARA O JARDIM -->
+                                <g transform="translate(115, 36)">
+                                    <rect x="0" y="0" width="54" height="52" rx="3" fill="#ffffff" stroke="#64748b" stroke-width="3"/>
+                                    <rect x="5" y="5" width="44" height="42" fill="#86efac"/>
+                                    <!-- Arbustos na janela -->
+                                    <circle cx="18" cy="36" r="14" fill="#16a34a"/>
+                                    <circle cx="38" cy="34" r="16" fill="#15803d"/>
+                                    <!-- Divisórias da janela -->
+                                    <line x1="27" y1="4" x2="27" y2="48" stroke="#ffffff" stroke-width="3.5"/>
+                                    <line x1="4" y1="26" x2="50" y2="26" stroke="#ffffff" stroke-width="3.5"/>
+                                </g>
+
+                                <!-- ARMÁRIOS AÉREOS DE MADEIRA -->
+                                <g transform="translate(185, 28)">
+                                    <rect x="0" y="0" width="165" height="62" rx="3" fill="#f59e0b" stroke="#78350f" stroke-width="2.5"/>
+                                    <rect x="6" y="6" width="48" height="50" fill="#fbbf24" stroke="#78350f" stroke-width="2"/>
+                                    <rect x="58" y="6" width="48" height="50" fill="#fbbf24" stroke="#78350f" stroke-width="2"/>
+                                    <rect x="110" y="6" width="49" height="50" fill="#fbbf24" stroke="#78350f" stroke-width="2"/>
+                                    <!-- Puxadores -->
+                                    <rect x="46" y="38" width="3" height="10" fill="#451a03"/>
+                                    <rect x="64" y="38" width="3" height="10" fill="#451a03"/>
+                                    <rect x="116" y="38" width="3" height="10" fill="#451a03"/>
+                                </g>
+
+                                <!-- GELADEIRA DUPLEX PRATEADA (Clicável) -->
+                                <g class="interactive-appliance" onclick="toggleFridgeBase()" transform="translate(18, 25)">
+                                    <title>Geladeira Duplex (Clique para alternar modo compressor ativo)</title>
+                                    <rect x="0" y="0" width="82" height="195" rx="5" fill="#e2e8f0" stroke="#475569" stroke-width="2.8"/>
+                                    <!-- Sombra lateral -->
+                                    <rect x="72" y="2" width="8" height="191" fill="#cbd5e1"/>
+                                    <!-- Divisão Freezer / Refrigerador -->
+                                    <line x1="0" y1="68" x2="82" y2="68" stroke="#475569" stroke-width="3"/>
+                                    <!-- Puxadores -->
+                                    <rect x="64" y="36" width="5" height="22" rx="2" fill="#64748b"/>
+                                    <rect x="64" y="80" width="5" height="34" rx="2" fill="#64748b"/>
+                                    <!-- Painel LED na porta do freezer -->
+                                    <rect id="fridgeLedPanel" x="32" y="20" width="18" height="10" rx="2" fill="#94a3b8"/>
+                                </g>
+
+                                <!-- BALCÃO DA PIA -->
+                                <g transform="translate(105, 136)">
+                                    <!-- Torneira e Cuba -->
+                                    <path d="M68,0 L68,-18 Q68,-26 76,-26 Q84,-26 84,-16" stroke="#64748b" stroke-width="4" fill="none"/>
+                                    <rect x="45" y="-2" width="52" height="5" rx="2" fill="#94a3b8"/>
+                                    <!-- Tampo -->
+                                    <rect x="0" y="0" width="168" height="8" rx="2" fill="#d6d3d1" stroke="#57534e" stroke-width="2"/>
+                                    <!-- Corpo do armário inferior -->
+                                    <rect x="2" y="8" width="164" height="76" fill="#eab308" stroke="#78350f" stroke-width="2.5"/>
+                                    <!-- Portas e Gavetas -->
+                                    <rect x="8" y="14" width="48" height="64" fill="#facc15" stroke="#78350f" stroke-width="2"/>
+                                    <rect x="60" y="14" width="48" height="64" fill="#facc15" stroke="#78350f" stroke-width="2"/>
+                                    <rect x="112" y="14" width="48" height="64" fill="#facc15" stroke="#78350f" stroke-width="2"/>
+                                    <!-- Puxadores -->
+                                    <rect x="48" y="24" width="3" height="12" fill="#451a03"/>
+                                    <rect x="66" y="24" width="3" height="12" fill="#451a03"/>
+                                    <rect x="118" y="24" width="3" height="12" fill="#451a03"/>
+                                </g>
+
+                                <!-- FOGÃO COM FORNO -->
+                                <g transform="translate(276, 132)">
+                                    <!-- Chaleira/Panela no fogão -->
+                                    <rect x="14" y="-8" width="24" height="8" rx="2" fill="#60a5fa" stroke="#1e3a8a" stroke-width="1.8"/>
+                                    <rect x="52" y="-6" width="22" height="6" rx="2" fill="#94a3b8" stroke="#334155" stroke-width="1.8"/>
+                                    <!-- Corpo do fogão -->
+                                    <rect x="0" y="0" width="88" height="88" rx="3" fill="#f1f5f9" stroke="#334155" stroke-width="2.5"/>
+                                    <!-- Painel de botões do fogão -->
+                                    <rect x="2" y="3" width="84" height="16" fill="#cbd5e1" stroke="#475569" stroke-width="1.5"/>
+                                    <circle cx="16" cy="11" r="3" fill="#1e293b"/>
+                                    <circle cx="32" cy="11" r="3" fill="#ef4444"/>
+                                    <circle cx="56" cy="11" r="3" fill="#1e293b"/>
+                                    <circle cx="72" cy="11" r="3" fill="#1e293b"/>
+                                    <!-- Porta do Forno -->
+                                    <rect x="10" y="26" width="68" height="48" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+                                    <rect x="18" y="34" width="52" height="32" rx="2" fill="#334155"/>
+                                    <line x1="16" y1="22" x2="72" y2="22" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- ==================== PAINEL DE ENERGIA (Centro Inferior) ==================== -->
+                        <div class="md:col-span-7 energy-panel-box rounded-2xl p-3 sm:p-4 flex flex-col justify-between relative">
+                            
+                            <!-- Cabeçalho Azul Escuro em Pílula: Painel de Energia -->
+                            <div class="flex items-center justify-center -mt-1 mb-2">
+                                <div class="bg-gradient-to-r from-[#0d47a1] via-[#1565c0] to-[#0d47a1] border-2 border-[#90caf9] text-white px-5 py-1.5 rounded-full shadow-md flex items-center gap-2">
+                                    <!-- Ícone Lâmpada + Raio -->
+                                    <span class="text-xl drop-shadow">💡⚡</span>
+                                    <h2 class="title-font text-lg sm:text-2xl font-bold tracking-wide">Painel de Energia</h2>
+                                </div>
+                            </div>
+
+                            <!-- Quadro Creme Principal com as 4 Métricas -->
+                            <div class="bg-[#fff8e7] border-[3px] border-[#eab308]/60 rounded-xl px-4 sm:px-6 py-3 shadow-inner my-auto">
+                                <div class="space-y-1.5 sm:space-y-2 text-base sm:text-xl md:text-[22px]">
+                                    <div class="flex items-center justify-between border-b border-amber-200/80 pb-1">
+                                        <span class="font-extrabold text-[#1e293b]">Potência Atual:</span>
+                                        <span id="metricPower" class="font-black text-[#b45309] tracking-tight">1.230 W</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-amber-200/80 pb-1">
+                                        <span class="font-extrabold text-[#1e293b]">Consumo Diário:</span>
+                                        <span id="metricDaily" class="font-black text-[#b45309] tracking-tight">6,15 kWh</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-amber-200/80 pb-1">
+                                        <span class="font-extrabold text-[#1e293b]">Consumo Mensal:</span>
+                                        <span id="metricMonthly" class="font-black text-[#b45309] tracking-tight">184,5 kWh</span>
+                                    </div>
+                                    <div class="flex items-center justify-between pt-0.5">
+                                        <span class="font-extrabold text-[#1e293b]">Custo Estimado:</span>
+                                        <span id="metricCost" class="font-black text-[#b45309] tracking-tight">R$ 147,60</span>
+                                    </div>
+                                </div>
+
+                                <!-- Mini barra interativa para horas de uso / tarifa -->
+                                <div class="mt-2.5 pt-2 border-t border-amber-300/70 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-slate-600">
+                                    <div class="flex items-center gap-1.5">
+                                        <span>⏱️ Uso médio: <strong id="quickHoursLabel" class="text-sky-800">5,0 h/dia</strong></span>
+                                        <input id="quickHoursSlider" type="range" min="1" max="12" step="0.5" value="5" oninput="updateQuickHours(this.value)" class="w-20 sm:w-24 accent-sky-600 cursor-pointer">
+                                    </div>
+                                    <button onclick="openConfigModal()" class="text-sky-700 hover:text-sky-900 underline font-extrabold">
+                                        Detalhar por aparelho →
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Caixa Inferior de Dica Sustentável -->
+                            <div class="mt-2.5 bg-[#fff9db] border-[2.5px] border-[#5294cc] rounded-xl px-3 py-2 flex items-center justify-center gap-2.5 shadow-sm">
+                                <!-- Folha dupla SVG -->
+                                <svg class="w-8 h-8 sm:w-9 sm:h-9 shrink-0" viewBox="0 0 50 50">
+                                    <path d="M24,42 C10,38 6,20 14,8 C26,12 30,26 24,42 Z" fill="#22c55e" stroke="#14532d" stroke-width="2"/>
+                                    <path d="M24,42 C38,40 46,26 42,14 C30,16 24,28 24,42 Z" fill="#4ade80" stroke="#14532d" stroke-width="2"/>
+                                    <path d="M24,42 L15,15 M24,42 L38,20" stroke="#14532d" stroke-width="1.5"/>
+                                </svg>
+                                <p id="dynamicTipText" class="text-center font-extrabold text-[#164e63] text-xs sm:text-base leading-tight">
+                                    Dica: Desligue o que não estiver em uso!
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ================= COLUNA LATERAL DIREITA (3 COLUNAS NO DESKTOP): CONTROLES E DESAFIO ================= -->
+                <div class="lg:col-span-3 flex flex-col justify-between gap-2.5">
+
+                    <!-- CARD 1: LÂMPADA -->
+                    <div class="card-control rounded-2xl p-2.5 sm:px-3.5 sm:py-2.5 flex items-center justify-between gap-2">
+                        <!-- Ícone Lâmpada -->
+                        <div class="w-14 h-14 flex items-center justify-center shrink-0">
+                            <svg class="w-12 h-12 sm:w-14 sm:h-14" viewBox="0 0 60 60">
+                                <g id="iconLampGlow">
+                                    <circle cx="30" cy="24" r="22" fill="#fef08a" opacity="0.65"/>
+                                </g>
+                                <path id="iconLampBulb" d="M16,24 C16,13 44,13 44,24 C44,31 38,35 37,42 L23,42 C22,35 16,31 16,24 Z" fill="#facc15" stroke="#ca8a04" stroke-width="2.5"/>
+                                <path d="M26,42 L26,28 L30,32 L34,28 L34,42" stroke="#fef08a" stroke-width="2" fill="none"/>
+                                <rect x="23" y="42" width="14" height="5" rx="2" fill="#94a3b8" stroke="#475569" stroke-width="2"/>
+                                <rect x="25" y="47" width="10" height="5" rx="2" fill="#64748b" stroke="#475569" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col items-center flex-1">
+                            <div class="flex items-center gap-1">
+                                <span class="title-font text-lg sm:text-xl font-bold text-[#0f172a]">Lâmpada</span>
+                                <span id="powerBadge_lamp" class="text-[11px] font-extrabold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">60W</span>
+                            </div>
+                            <button id="btn_lamp" onclick="toggleDevice('lamp')" class="mt-1 w-28 sm:w-32 py-1 rounded-full text-white font-extrabold text-sm sm:text-base tracking-wide transition btn-pill-on">
+                                Ligada
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: VENTILADOR -->
+                    <div class="card-control rounded-2xl p-2.5 sm:px-3.5 sm:py-2.5 flex items-center justify-between gap-2">
+                        <!-- Ícone Ventilador -->
+                        <div class="w-14 h-14 flex items-center justify-center shrink-0">
+                            <svg class="w-12 h-12 sm:w-14 sm:h-14" viewBox="0 0 60 60">
+                                <!-- Base do ventilador -->
+                                <path d="M24,42 L32,42 L35,52 L21,52 Z" fill="#1d4ed8"/>
+                                <ellipse cx="28" cy="53" rx="14" ry="4" fill="#2563eb" stroke="#1e3a8a" stroke-width="2"/>
+                                <!-- Grade circular -->
+                                <circle cx="28" cy="25" r="19" fill="#dbeafe" stroke="#1d4ed8" stroke-width="3"/>
+                                <!-- Hélices -->
+                                <g id="iconFanBlades" class="icon-fan-spinning">
+                                    <path d="M28,25 C22,12 34,12 28,25" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="4"/>
+                                    <ellipse cx="28" cy="14" rx="5" ry="7" fill="#2563eb"/>
+                                    <ellipse cx="28" cy="36" rx="5" ry="7" fill="#2563eb"/>
+                                    <ellipse cx="17" cy="25" rx="7" ry="5" fill="#2563eb"/>
+                                    <ellipse cx="39" cy="25" rx="7" ry="5" fill="#2563eb"/>
+                                </g>
+                                <circle cx="28" cy="25" r="4" fill="#93c5fd" stroke="#1e3a8a" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col items-center flex-1">
+                            <div class="flex items-center gap-1">
+                                <span class="title-font text-lg sm:text-xl font-bold text-[#0f172a]">Ventilador</span>
+                                <span id="powerBadge_fan" class="text-[11px] font-extrabold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">120W</span>
+                            </div>
+                            <button id="btn_fan" onclick="toggleDevice('fan')" class="mt-1 w-28 sm:w-32 py-1 rounded-full text-white font-extrabold text-sm sm:text-base tracking-wide transition btn-pill-on">
+                                Ligado
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: TV -->
+                    <div class="card-control rounded-2xl p-2.5 sm:px-3.5 sm:py-2.5 flex items-center justify-between gap-2">
+                        <!-- Ícone TV -->
+                        <div class="w-14 h-14 flex items-center justify-center shrink-0">
+                            <svg class="w-12 h-12 sm:w-14 sm:h-14" viewBox="0 0 60 60">
+                                <rect x="25" y="42" width="10" height="7" fill="#334155"/>
+                                <ellipse cx="30" cy="50" rx="14" ry="3" fill="#1e293b"/>
+                                <rect x="6" y="12" width="48" height="31" rx="3" fill="#1e293b" stroke="#0f172a" stroke-width="2.5"/>
+                                <rect id="iconTvScreen" x="9" y="15" width="42" height="25" fill="#38bdf8"/>
+                                <path id="iconTvGlare" d="M12,18 L24,18 L16,36 L10,36 Z" fill="#bae6fd" opacity="0.5"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col items-center flex-1">
+                            <div class="flex items-center gap-1">
+                                <span class="title-font text-lg sm:text-xl font-bold text-[#0f172a]">TV</span>
+                                <span id="powerBadge_tv" class="text-[11px] font-extrabold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">150W</span>
+                            </div>
+                            <button id="btn_tv" onclick="toggleDevice('tv')" class="mt-1 w-28 sm:w-32 py-1 rounded-full text-white font-extrabold text-sm sm:text-base tracking-wide transition btn-pill-on">
+                                Ligada
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CARD 4: AR-CONDICIONADO -->
+                    <div class="card-control rounded-2xl p-2.5 sm:px-3.5 sm:py-2.5 flex items-center justify-between gap-2">
+                        <!-- Ícone Ar-Condicionado -->
+                        <div class="w-14 h-14 flex items-center justify-center shrink-0">
+                            <svg class="w-12 h-12 sm:w-14 sm:h-14" viewBox="0 0 60 60">
+                                <g id="iconAcWaves" opacity="0.35">
+                                    <path d="M14,38 Q12,48 8,54" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                    <path d="M25,38 Q24,48 22,55" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                    <path d="M36,38 Q36,48 38,55" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                    <path d="M46,38 Q48,48 52,54" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none"/>
+                                </g>
+                                <rect x="4" y="14" width="52" height="22" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="2.2"/>
+                                <rect x="10" y="29" width="40" height="4" rx="1.5" fill="#1e3a8a"/>
+                                <line x1="10" y1="24" x2="42" y2="24" stroke="#38bdf8" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="flex flex-col items-center flex-1">
+                            <div class="flex items-center gap-1">
+                                <span class="title-font text-sm sm:text-base font-bold text-[#0f172a] leading-tight">Ar-Condicionado</span>
+                            </div>
+                            <span id="powerBadge_ac" class="text-[10px] font-extrabold bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded mt-0.5">900W</span>
+                            <button id="btn_ac" onclick="toggleDevice('ac')" class="mt-1 w-28 sm:w-32 py-1 rounded-full text-white font-extrabold text-sm sm:text-base tracking-wide transition btn-pill-off">
+                                Desligado
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CARD 5: DESAFIO DA ECONOMIA (VERDE) -->
+                    <div onclick="openScenarioModal()" class="challenge-card rounded-2xl p-3 text-white cursor-pointer hover:brightness-105 transition flex flex-col justify-between">
+                        <div class="flex items-center justify-center gap-2">
+                            <!-- Troféu Dourado SVG -->
+                            <svg class="w-8 h-8 shrink-0 drop-shadow" viewBox="0 0 40 40">
+                                <path d="M10,8 L30,8 L28,20 C28,26 12,26 12,20 Z" fill="#facc15" stroke="#a16207" stroke-width="2"/>
+                                <path d="M10,10 C4,10 4,18 11,18" fill="none" stroke="#facc15" stroke-width="3"/>
+                                <path d="M30,10 C36,10 36,18 29,18" fill="none" stroke="#facc15" stroke-width="3"/>
+                                <rect x="17" y="24" width="6" height="7" fill="#eab308" stroke="#a16207" stroke-width="1.5"/>
+                                <rect x="11" y="31" width="18" height="5" rx="2" fill="#ca8a04" stroke="#713f12" stroke-width="1.5"/>
+                            </svg>
+                            <h3 class="title-font text-base sm:text-lg font-bold leading-tight text-amber-100 drop-shadow">
+                                Desafio da Economia
+                            </h3>
+                        </div>
+
+                        <p class="text-center text-xs sm:text-sm font-extrabold text-white mt-1.5 leading-snug">
+                            Economize pelo menos <span class="text-yellow-300 underline">20% de energia!</span>
+                        </p>
+
+                        <!-- Barra de progresso da economia em relação ao Teto de Referência -->
+                        <div class="mt-2 bg-black/30 rounded-full h-4 p-0.5 overflow-hidden border border-emerald-300/40 relative">
+                            <div id="savingsProgressBar" class="bg-gradient-to-r from-yellow-400 to-lime-300 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            <span id="savingsPercentLabel" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white drop-shadow">
+                                Economia atual: 0%
+                            </span>
+                        </div>
+
+                        <div class="mt-1.5 flex items-center justify-between text-[11px] font-bold text-emerald-100">
+                            <span id="challengeStatusBadge">🎯 Meta: Reduzir ≥ 20%</span>
+                            <span class="underline text-yellow-200">Abrir Desafio →</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Arbustos e Vaso Externo na Base da Casa (Decoração Fiel à Imagem) -->
+            <div class="hidden sm:block absolute -left-8 -bottom-4 pointer-events-none z-20">
+                <svg class="w-24 h-36" viewBox="0 0 100 150">
+                    <polygon points="18,95 62,95 54,142 26,142" fill="#c85a28" stroke="#6e2c0e" stroke-width="3"/>
+                    <rect x="14" y="88" width="52" height="10" rx="4" fill="#df6d38" stroke="#6e2c0e" stroke-width="3"/>
+                    <path d="M40,88 Q20,55 15,30 Q38,40 40,88 Z" fill="#4ade80" stroke="#15803d" stroke-width="2.5"/>
+                    <path d="M40,88 Q65,50 68,25 Q42,40 40,88 Z" fill="#22c55e" stroke="#15803d" stroke-width="2.5"/>
+                    <path d="M40,88 Q40,40 40,12 Q52,40 40,88 Z" fill="#86efac" stroke="#15803d" stroke-width="2.5"/>
+                </svg>
+            </div>
+        </div>
+    </main>
+
+    <!-- RODAPÉ DE CONTROLES EDUCACIONAIS RÁPIDOS -->
+    <footer class="relative z-10 w-full max-w-6xl mt-2 px-2">
+        <div class="bg-white/90 backdrop-blur-md border-2 border-emerald-700 rounded-2xl px-4 py-2 shadow-lg flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="font-black text-emerald-900">⚡ Cenários Rápidos:</span>
+                <button onclick="applyPreset('imagem')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-2.5 py-1 rounded-lg border border-amber-400 transition">
+                    Padrão da Imagem (1.230 W)
+                </button>
+                <button onclick="applyPreset('tudo_ligado')" class="bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold px-2.5 py-1 rounded-lg border border-rose-400 transition">
+                    🔥 Alto Consumo (Tudo Ligado)
+                </button>
+                <button onclick="applyPreset('consciente')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold px-2.5 py-1 rounded-lg border border-emerald-400 transition">
+                    🌱 Uso Consciente (Meta -20%)
+                </button>
+                <button onclick="applyPreset('noite_fresca')" class="bg-sky-100 hover:bg-sky-200 text-sky-900 font-bold px-2.5 py-1 rounded-lg border border-sky-400 transition">
+                    🌙 Noite Económica
+                </button>
+            </div>
+            <div class="text-slate-600 font-bold">
+                Fórmula: <code class="bg-slate-200 px-1.5 py-0.5 rounded text-slate-800">kWh = (Potência W × Horas) ÷ 1000</code>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===================================================================================== -->
+    <!-- MODAL 1: CONFIGURAÇÃO DE POTÊNCIAS, HORAS DIÁRIAS E TARIFA DE ENERGIA                 -->
+    <!-- ===================================================================================== -->
+    <div id="configModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white border-4 border-sky-600 rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b-2 border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">⚙️</span>
+                    <h3 class="title-font text-xl sm:text-2xl font-bold text-slate-800">Parâmetros de Inteligência Energética</h3>
+                </div>
+                <button onclick="closeConfigModal()" class="w-9 h-9 rounded-full bg-slate-200 hover:bg-rose-500 hover:text-white font-black text-lg transition">✕</button>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-600 mt-2 font-semibold">
+                Personalize a potência (Watts) e o tempo de uso diário (horas) de cada equipamento ou escolha um modo de calibração didática:
+            </p>
+
+            <!-- Botões de Calibração Rápida -->
+            <div class="mt-3 flex flex-wrap gap-2">
+                <button onclick="setCalibrationMode('exactImage')" class="text-xs font-extrabold bg-amber-400 hover:bg-amber-300 text-slate-900 px-3 py-1.5 rounded-xl border border-amber-600">
+                    🎯 Calibração Fiel à Imagem (Soma = 1.230 W com Lâmpada+Ventilador+TV)
+                </button>
+                <button onclick="setCalibrationMode('realistic')" class="text-xs font-extrabold bg-sky-100 hover:bg-sky-200 text-sky-900 px-3 py-1.5 rounded-xl border border-sky-400">
+                    🏠 Calibração Residencial Padrão (Lâmpada LED 15W, Vent 120W, TV 150W, AC 1200W)
+                </button>
+            </div>
+
+            <!-- Tabela de Aparelhos -->
+            <div class="mt-4 space-y-3">
+                <!-- Lâmpada -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 min-w-[160px]">
+                        <span class="text-2xl">💡</span>
+                        <div>
+                            <div class="font-extrabold text-slate-800">Lâmpadas da Casa</div>
+                            <div class="text-xs text-slate-500">Iluminação Sala + Quarto</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500">Potência (W)</label>
+                            <input id="inputPower_lamp" type="number" min="5" max="1000" class="w-24 border-2 border-slate-300 rounded-lg px-2 py-1 font-extrabold text-slate-800" onchange="saveCustomConfig()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500">Uso (h/dia)</label>
+                            <input id="inputHours_lamp" type="number" min="0.5" max="24" step="0.5" class="w-20 border-2 border-slate-300 rounded-lg px-2 py-1 font-extrabold text-slate-800" onchange="saveCustomConfig()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ventilador -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 min-w-[160px]">
+                        <span class="text-2xl">🌀</span>
+                        <div>
+                            <div class="font-extrabold text-slate-800">Ventilador de Teto</div>
+                            <div class="text-xs text-slate-500">Sala de Estar</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500">Potência (W)</label>
+                            <input id="inputPower_fan" type="number" min="20" max="1500" class="w-24 border-2 border-slate-300 rounded-lg px-2 py-1 font-extrabold text-slate-800" onchange="saveCustomConfig()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500">Uso (h/dia)</label>
+                            <input id="inputHours_fan" type="number" min="0.5" max="24" step="0.5" class="w-20 border-2 border-slate-300 rounded-lg px-2 py-1 font-extrabold text-slate-800" onchange="saveCustomConfig()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TV -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 min-w-[160px]">
+                        <span class="text-2xl">📺</span>
+                        <div>
+                            <div class="font-extrabold text-slate-800">Televisão Smart</div>
+                            <div class="text-xs text-slate-500">Sala de Estar</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500">Potência (W)</label>
+                            <input id="inputPower_tv" type="number" min="30" max="1500" class="w-24 border-2 border-slate-300 rounded-lg px-2 py-1 font-extrabold text-slate-800" onchange="saveCustomConfig()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500">Uso (h/dia)</label>
+                            <input id="inputHours_tv" type="number" min="0.5" max="24" step="0.5" class="w-20 border-2 border-slate-300 rounded-lg px-2 py-1 font-extrabold text-slate-800" onchange="saveCustomConfig()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ar-Condicionado -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 min-w-[160px]">
+                        <span class="text-2xl">❄️</span>
+                        <div>
+                            <div class="font-extrabold text-slate-800">Ar-Condicionado Split</div>
+                            <div class="text-xs text-slate-500">Quarto de Casal</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500">Potência (W)</label>
+                            <input id="inputPower_ac" type="number" min="400" max="3500" class="w-24 border-2 border-slate-300 rounded-lg px-2 py-1 font-extrabold text-slate-800" onchange="saveCustomConfig()">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500">Uso (h/dia)</label>
+                            <input id="inputHours_ac" type="number" min="0.5" max="24" step="0.5" class="w-20 border-2 border-slate-300 rounded-lg px-2 py-1 font-extrabold text-slate-800" onchange="saveCustomConfig()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarifa e Consumo Base -->
+            <div class="mt-4 bg-sky-50 border-2 border-sky-200 rounded-2xl p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-extrabold text-sky-900">💰 Tarifa de Energia (R$ por kWh)</label>
+                    <input id="inputTariff" type="number" step="0.05" min="0.10" max="5.00" value="0.80" onchange="saveCustomConfig()" class="mt-1 w-full border-2 border-sky-300 rounded-xl px-3 py-1.5 font-black text-sky-950">
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-sky-900">🧊 Carga Base / Geladeira Cozinha (W)</label>
+                    <input id="inputBasePower" type="number" step="10" min="0" max="2000" value="960" onchange="saveCustomConfig()" class="mt-1 w-full border-2 border-sky-300 rounded-xl px-3 py-1.5 font-black text-sky-950">
+                    <span class="text-[11px] text-sky-700 font-semibold">Soma-se aos aparelhos quando o modo base está ativo.</span>
+                </div>
+            </div>
+
+            <div class="mt-5 flex justify-end">
+                <button onclick="closeConfigModal()" class="bg-sky-600 hover:bg-sky-500 text-white font-extrabold px-6 py-2 rounded-xl shadow">
+                    Concluído
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================================== -->
+    <!-- MODAL 2: DESAFIO DA ECONOMIA, COMPARADOR DE CENÁRIOS E RECOMENDAÇÕES                  -->
+    <!-- ===================================================================================== -->
+    <div id="scenarioModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white border-4 border-emerald-600 rounded-3xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b-2 border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl">🏆</span>
+                    <div>
+                        <h3 class="title-font text-xl sm:text-2xl font-bold text-emerald-900">Desafio da Economia de Energia & Comparador</h3>
+                        <p class="text-xs sm:text-sm font-bold text-slate-500">Compare cenários, analise o peso de cada aparelho e conquiste a meta de 20% de redução!</p>
+                    </div>
+                </div>
+                <button onclick="closeScenarioModal()" class="w-9 h-9 rounded-full bg-slate-200 hover:bg-rose-500 hover:text-white font-black text-lg transition">✕</button>
+            </div>
+
+            <!-- Comparação Lado a Lado: Cenário Referência vs Cenário Atual -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <!-- Cenário A (Referência / Salvo) -->
+                <div class="bg-slate-100 border-2 border-slate-300 rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black uppercase tracking-wider text-slate-500">Cenário de Referência</span>
+                        <button onclick="saveCurrentAsReference()" class="text-[11px] bg-slate-700 hover:bg-slate-800 text-white font-bold px-2 py-0.5 rounded">
+                            📌 Fixar Atual
+                        </button>
+                    </div>
+                    <div id="refScenarioName" class="font-extrabold text-slate-800 text-base mt-1">Padrão da Imagem (1.230 W)</div>
+                    <div class="mt-3 space-y-1 text-sm">
+                        <div class="flex justify-between"><span>Potência:</span><strong id="refPower">1.230 W</strong></div>
+                        <div class="flex justify-between"><span>Consumo Mensal:</span><strong id="refMonthly">184,5 kWh</strong></div>
+                        <div class="flex justify-between"><span>Custo Mensal:</span><strong id="refCost">R$ 147,60</strong></div>
+                    </div>
+                </div>
+
+                <!-- Cenário B (Atual na Casa) -->
+                <div class="bg-sky-50 border-2 border-sky-400 rounded-2xl p-4">
+                    <span class="text-xs font-black uppercase tracking-wider text-sky-700">Cenário Atual da Casa</span>
+                    <div class="font-extrabold text-sky-950 text-base mt-1">Configuração Ativa Agora</div>
+                    <div class="mt-3 space-y-1 text-sm">
+                        <div class="flex justify-between"><span>Potência:</span><strong id="curModalPower" class="text-sky-900">1.230 W</strong></div>
+                        <div class="flex justify-between"><span>Consumo Mensal:</span><strong id="curModalMonthly" class="text-sky-900">184,5 kWh</strong></div>
+                        <div class="flex justify-between"><span>Custo Mensal:</span><strong id="curModalCost" class="text-sky-900">R$ 147,60</strong></div>
+                    </div>
+                </div>
+
+                <!-- Resultado da Comparação -->
+                <div id="comparisonResultCard" class="bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-4 flex flex-col justify-between">
+                    <span class="text-xs font-black uppercase tracking-wider text-emerald-700">Resultado do Desafio</span>
+                    <div id="comparisonBadgeText" class="text-2xl font-black text-emerald-800 mt-1">0% de economia</div>
+                    <p id="comparisonSavingsMoney" class="text-xs font-bold text-emerald-900 mt-1">
+                        Desligue aparelhos ociosos ou reduza horas de uso para economizar pelo menos 20%!
+                    </p>
+                    <div id="medalUnlockedBox" class="mt-2 bg-amber-300/90 border border-amber-600 rounded-xl px-3 py-1.5 text-xs font-black text-amber-950 hidden items-center gap-1.5">
+                        <span>🥇</span> Parabéns! Meta de 20% atingida!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Barras de Participação no Consumo por Aparelho -->
+            <div class="mt-5 bg-slate-50 border-2 border-slate-200 rounded-2xl p-4">
+                <h4 class="font-extrabold text-slate-800 text-sm sm:text-base mb-3">📊 Consumo Mensal por Equipamento Ativo (kWh/mês)</h4>
+                <div id="deviceBreakdownBars" class="space-y-2.5 text-xs sm:text-sm">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+
+            <!-- Recomendações Inteligentes -->
+            <div class="mt-5 bg-amber-50 border-2 border-amber-300 rounded-2xl p-4">
+                <h4 class="font-extrabold text-amber-950 text-sm sm:text-base mb-2 flex items-center gap-1.5">
+                    <span>💡</span> Diagnóstico e Recomendações Personalizadas
+                </h4>
+                <ul id="smartRecommendationsList" class="space-y-1.5 text-xs sm:text-sm font-semibold text-amber-900 list-disc list-inside">
+                    <!-- Preenchido via JS -->
+                </ul>
+            </div>
+
+            <div class="mt-5 flex justify-end gap-2">
+                <button onclick="applyPreset('consciente'); closeScenarioModal();" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-4 py-2 rounded-xl shadow text-sm">
+                    ✨ Aplicar Cenário Econômico (-20%)
+                </button>
+                <button onclick="closeScenarioModal()" class="bg-slate-700 hover:bg-slate-600 text-white font-extrabold px-5 py-2 rounded-xl shadow text-sm">
+                    Voltar para a Casa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================================== -->
+    <!-- LÓGICA JAVASCRIPT COMPLETA                                                            -->
+    <!-- ===================================================================================== -->
+    <script>
+        /*
+         * ESTADO INICIAL DA CASA INTELIGENTE
+         * Observação importante sobre a imagem de referência:
+         * Na imagem original: Lâmpada = Ligada, Ventilador = Ligado, TV = Ligada, Ar-Condicionado = Desligado.
+         * Potência Atual = 1.230 W | Consumo Diário = 6,15 kWh (1,23 kW * 5h) | Consumo Mensal = 184,5 kWh (6,15 * 30) | Custo = R$ 147,60 (184,5 * R$ 0,80).
+         * Para que a matemática bata 100% com a imagem no carregamento inicial e continue totalmente interativa:
+         * Incluímos a carga base da Cozinha/Geladeira (960W) + Lâmpadas (30W) + Ventilador (120W) + TV (120W) = 1.230 W!
+         * O usuário também pode clicar na Geladeira ou no modal de configuração para alterar qualquer valor.
+         */
+        const state = {
+            soundEnabled: true,
+            tariff: 0.80, // R$ 0,80 por kWh
+            fridgeBaseActive: true,
+            fridgeBasePower: 960, // Permite que Lâmpada(30W) + Ventilador(120W) + TV(120W) + Base(960W) = 1.230W exatos da imagem
+            fridgeBaseHours: 5,
+            devices: {
+                lamp: {
+                    name: 'Lâmpada',
+                    on: true,
+                    power: 30,
+                    hours: 5,
+                    genderOn: 'Ligada',
+                    genderOff: 'Desligada'
+                },
+                fan: {
+                    name: 'Ventilador',
+                    on: true,
+                    power: 120,
+                    hours: 5,
+                    genderOn: 'Ligado',
+                    genderOff: 'Desligado'
+                },
+                tv: {
+                    name: 'TV',
+                    on: true,
+                    power: 120,
+                    hours: 5,
+                    genderOn: 'Ligada',
+                    genderOff: 'Desligada'
+                },
+                ac: {
+                    name: 'Ar-Condicionado',
+                    on: false,
+                    power: 1100,
+                    hours: 5,
+                    genderOn: 'Ligado',
+                    genderOff: 'Desligado'
+                }
+            },
+            referenceScenario: {
+                name: 'Padrão Inicial da Imagem',
+                power: 1230,
+                monthlyKwh: 184.5,
+                monthlyCost: 147.60
+            }
+        };
+
+        // Sintetizador de som Web Audio API (sem arquivos externos)
+        let audioCtx = null;
+        function playClickSound(isTurningOn) {
+            if (!state.soundEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(isTurningOn ? 520 : 340, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(isTurningOn ? 780 : 210, audioCtx.currentTime + 0.09);
+
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.09);
+            } catch (e) {
+                // Ignora bloqueio de autoplay
+            }
+        }
+
+        function toggleSound() {
+            state.soundEnabled = !state.soundEnabled;
+            document.getElementById('soundBtn').textContent = state.soundEnabled ? '🔊 Som: ON' : '🔇 Som: OFF';
+        }
+
+        // Formatação brasileira de números
+        function formatNumberBR(num, decimals = 1) {
+            return num.toLocaleString('pt-BR', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatIntBR(num) {
+            return Math.round(num).toLocaleString('pt-BR');
+        }
+
+        // Alternar estado de um aparelho (Lâmpada, Ventilador, TV, Ar-Condicionado)
+        function toggleDevice(deviceKey) {
+            const dev = state.devices[deviceKey];
+            if (!dev) return;
+            dev.on = !dev.on;
+            playClickSound(dev.on);
+            updateAll();
+        }
+
+        // Alternar carga base da cozinha/geladeira
+        function toggleFridgeBase() {
+            state.fridgeBaseActive = !state.fridgeBaseActive;
+            playClickSound(state.fridgeBaseActive);
+            updateAll();
+        }
+
+        // Slider rápido de horas médias no Painel de Energia
+        function updateQuickHours(val) {
+            const h = parseFloat(val);
+            document.getElementById('quickHoursLabel').textContent = formatNumberBR(h, 1) + ' h/dia';
+            state.fridgeBaseHours = h;
+            Object.keys(state.devices).forEach(k => {
+                state.devices[k].hours = h;
+            });
+            updateAll();
+        }
+
+        // Cálculo energético completo
+        function calculateMetrics() {
+            let totalPowerW = 0;
+            let dailyKwh = 0;
+
+            if (state.fridgeBaseActive) {
+                totalPowerW += state.fridgeBasePower;
+                dailyKwh += (state.fridgeBasePower * state.fridgeBaseHours) / 1000;
+            }
+
+            Object.keys(state.devices).forEach(key => {
+                const d = state.devices[key];
+                if (d.on) {
+                    totalPowerW += d.power;
+                    dailyKwh += (d.power * d.hours) / 1000;
+                }
+            });
+
+            const monthlyKwh = dailyKwh * 30;
+            const monthlyCost = monthlyKwh * state.tariff;
+
+            return {
+                totalPowerW,
+                dailyKwh,
+                monthlyKwh,
+                monthlyCost
+            };
+        }
+
+        // Atualiza animações dos cômodos, botões, painel de energia e desafio
+        function updateAll() {
+            const metrics = calculateMetrics();
+
+            // 1. Atualizar Textos do Painel de Energia
+            document.getElementById('metricPower').textContent = `${formatIntBR(metrics.totalPowerW)} W`;
+            
+            // Exibe 2 casas decimais se tiver centésimos (ex: 6,15 kWh) ou 1 casa decimal
+            const dailyDecimals = Math.abs((metrics.dailyKwh * 100) % 10) > 0.01 ? 2 : 1;
+            document.getElementById('metricDaily').textContent = `${formatNumberBR(metrics.dailyKwh, dailyDecimals)} kWh`;
+            document.getElementById('metricMonthly').textContent = `${formatNumberBR(metrics.monthlyKwh, 1)} kWh`;
+            document.getElementById('metricCost').textContent = `R$ ${formatNumberBR(metrics.monthlyCost, 2)}`;
+
+            // 2. Atualizar Botões Laterais e Badges de Potência
+            Object.keys(state.devices).forEach(key => {
+                const dev = state.devices[key];
+                const btn = document.getElementById(`btn_${key}`);
+                const badge = document.getElementById(`powerBadge_${key}`);
+                if (badge) badge.textContent = `${dev.power}W`;
+
+                if (dev.on) {
+                    btn.textContent = dev.genderOn;
+                    btn.className = 'mt-1 w-28 sm:w-32 py-1 rounded-full text-white font-extrabold text-sm sm:text-base tracking-wide transition btn-pill-on';
+                } else {
+                    btn.textContent = dev.genderOff;
+                    btn.className = 'mt-1 w-28 sm:w-32 py-1 rounded-full text-white font-extrabold text-sm sm:text-base tracking-wide transition btn-pill-off';
+                }
+            });
+
+            // Badge da Geladeira/Cozinha
+            const fridgeText = document.getElementById('fridgeStatusText');
+            const fridgeLed = document.getElementById('fridgeLedPanel');
+            if (state.fridgeBaseActive) {
+                fridgeText.textContent = `Ativa (${state.fridgeBasePower}W)`;
+                fridgeText.className = 'text-emerald-700 font-black';
+                fridgeLed.setAttribute('fill', '#38bdf8');
+            } else {
+                fridgeText.textContent = 'Pausada (0W)';
+                fridgeText.className = 'text-slate-400';
+                fridgeLed.setAttribute('fill', '#94a3b8');
+            }
+
+            // 3. Atualizar Elementos Visuais nos Cômodos SVG
+            // LÂMPADA (Sala, Quarto, Cozinha e Ícone)
+            const lampOn = state.devices.lamp.on;
+            document.getElementById('livingLampLight').classList.toggle('hidden', !lampOn);
+            document.getElementById('bedroomLampGlow').classList.toggle('hidden', !lampOn);
+            document.getElementById('kitchenLightGlow').classList.toggle('hidden', !lampOn);
+            document.getElementById('iconLampGlow').classList.toggle('hidden', !lampOn);
+            document.getElementById('ceilingBulb').setAttribute('fill', lampOn ? '#fef08a' : '#94a3b8');
+            document.getElementById('bedsideShade').setAttribute('fill', lampOn ? '#fef08a' : '#cbd5e1');
+            document.getElementById('iconLampBulb').setAttribute('fill', lampOn ? '#facc15' : '#cbd5e1');
+
+            // VENTILADOR (Sala e Ícone)
+            const fanOn = state.devices.fan.on;
+            document.getElementById('ceilingFanBlades').classList.toggle('fan-spinning', fanOn);
+            document.getElementById('iconFanBlades').classList.toggle('icon-fan-spinning', fanOn);
+
+            // TV (Sala e Ícone)
+            const tvOn = state.devices.tv.on;
+            document.getElementById('tvScreenActive').classList.toggle('hidden', !tvOn);
+            document.getElementById('tvLedOff').classList.toggle('hidden', tvOn);
+            document.getElementById('iconTvScreen').setAttribute('fill', tvOn ? '#38bdf8' : '#334155');
+            document.getElementById('iconTvGlare').classList.toggle('hidden', !tvOn);
+
+            // AR-CONDICIONADO (Quarto e Ícone)
+            const acOn = state.devices.ac.on;
+            document.getElementById('acAirEffect').classList.toggle('hidden', !acOn);
+            document.getElementById('acTempDisplay').textContent = acOn ? '22°' : 'OFF';
+            document.getElementById('acTempDisplay').setAttribute('fill', acOn ? '#38bdf8' : '#64748b');
+            document.getElementById('iconAcWaves').setAttribute('opacity', acOn ? '1' : '0.15');
+
+            // 4. Atualizar Dica Inteligente Sustentável
+            updateSmartTip(metrics);
+
+            // 5. Atualizar Barra do Desafio da Economia
+            updateChallengeProgress(metrics);
+
+            // 6. Se o modal de comparação estiver aberto, atualiza em tempo real
+            if (!document.getElementById('scenarioModal').classList.contains('hidden')) {
+                renderScenarioComparison(metrics);
+            }
+        }
+
+        function updateSmartTip(metrics) {
+            const tipEl = document.getElementById('dynamicTipText');
+            const { lamp, fan, tv, ac } = state.devices;
+
+            if (ac.on && fan.on) {
+                tipEl.textContent = 'Alerta: Ar-condicionado e ventilador ligados juntos! Desligue o ar-condicionado para economizar.';
+            } else if (ac.on) {
+                tipEl.textContent = 'Dica: Mantenha portas e janelas fechadas com o ar-condicionado em 23°C para gastar menos!';
+            } else if (!lamp.on && !fan.on && !tv.on && !ac.on) {
+                tipEl.textContent = 'Excelente! Todos os aparelhos dos cômodos estão desligados. Consumo mínimo atingido!';
+            } else if (lamp.on && tv.on && fan.on) {
+                tipEl.textContent = 'Dica: Desligue o que não estiver em uso!';
+            } else {
+                tipEl.textContent = 'Muito bem! Você já desligou aparelhos ociosos e está reduzindo a pegada energética.';
+            }
+        }
+
+        function updateChallengeProgress(metrics) {
+            const refKwh = state.referenceScenario.monthlyKwh || 184.5;
+            const diff = refKwh - metrics.monthlyKwh;
+            const rawPercent = (diff / refKwh) * 100;
+            const clampedBar = Math.max(0, Math.min(100, rawPercent));
+
+            document.getElementById('savingsProgressBar').style.width = `${clampedBar}%`;
+
+            const label = document.getElementById('savingsPercentLabel');
+            const badge = document.getElementById('challengeStatusBadge');
+
+            if (rawPercent >= 20) {
+                label.textContent = `🎉 Economia: ${formatNumberBR(rawPercent, 1)}% (Meta Batida!)`;
+                badge.textContent = '🏆 Conquista Desbloqueada: Eco-Mestre!';
+            } else if (rawPercent > 0) {
+                label.textContent = `Economia atual: ${formatNumberBR(rawPercent, 1)}% (Meta: 20%)`;
+                badge.textContent = `Faltam ${formatNumberBR(20 - rawPercent, 1)}% para vencer!`;
+            } else if (rawPercent < 0) {
+                label.textContent = `Aumento de +${formatNumberBR(Math.abs(rawPercent), 1)}% no consumo`;
+                badge.textContent = '⚠️ Consumo acima da referência!';
+            } else {
+                label.textContent = 'Economia atual: 0% (Cenário Base)';
+                badge.textContent = '🎯 Meta: Reduzir pelo menos 20%';
+            }
+        }
+
+        // Aplicar Cenários Prontos (Presets)
+        function applyPreset(presetName) {
+            if (presetName === 'imagem') {
+                // Exatamente os valores da imagem: 1.230 W | 6,15 kWh | 184,5 kWh | R$ 147,60
+                state.tariff = 0.80;
+                state.fridgeBaseActive = true;
+                state.fridgeBasePower = 960;
+                state.fridgeBaseHours = 5;
+                state.devices.lamp = { ...state.devices.lamp, on: true, power: 30, hours: 5 };
+                state.devices.fan  = { ...state.devices.fan,  on: true, power: 120, hours: 5 };
+                state.devices.tv   = { ...state.devices.tv,   on: true, power: 120, hours: 5 };
+                state.devices.ac   = { ...state.devices.ac,   on: false, power: 1100, hours: 5 };
+                document.getElementById('quickHoursSlider').value = 5;
+                document.getElementById('quickHoursLabel').textContent = '5,0 h/dia';
+            } else if (presetName === 'tudo_ligado') {
+                state.devices.lamp.on = true;
+                state.devices.fan.on = true;
+                state.devices.tv.on = true;
+                state.devices.ac.on = true;
+                state.fridgeBaseActive = true;
+            } else if (presetName === 'consciente') {
+                // Reduz mais de 20% mantendo conforto (Lâmpada ligada, Ventilador ligado, TV desligada, AC desligado, horas otimizadas)
+                state.devices.lamp.on = true;
+                state.devices.fan.on = true;
+                state.devices.tv.on = false;
+                state.devices.ac.on = false;
+                state.fridgeBaseActive = true;
+                updateQuickHours(4);
+                document.getElementById('quickHoursSlider').value = 4;
+            } else if (presetName === 'noite_fresca') {
+                state.devices.lamp.on = false;
+                state.devices.fan.on = true;
+                state.devices.tv.on = false;
+                state.devices.ac.on = false;
+                state.fridgeBaseActive = true;
+            }
+            playClickSound(true);
+            updateAll();
+        }
+
+        // Modos de calibração no Modal de Configuração
+        function setCalibrationMode(mode) {
+            if (mode === 'exactImage') {
+                state.fridgeBaseActive = true;
+                state.fridgeBasePower = 960;
+                state.devices.lamp.power = 30;
+                state.devices.fan.power = 120;
+                state.devices.tv.power = 120;
+                state.devices.ac.power = 1100;
+            } else if (mode === 'realistic') {
+                state.fridgeBaseActive = false;
+                state.fridgeBasePower = 150;
+                state.devices.lamp.power = 15;
+                state.devices.fan.power = 120;
+                state.devices.tv.power = 150;
+                state.devices.ac.power = 1200;
+            }
+            populateConfigInputs();
+            updateAll();
+        }
+
+        function openConfigModal() {
+            populateConfigInputs();
+            const modal = document.getElementById('configModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeConfigModal() {
+            const modal = document.getElementById('configModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function populateConfigInputs() {
+            ['lamp', 'fan', 'tv', 'ac'].forEach(k => {
+                document.getElementById(`inputPower_${k}`).value = state.devices[k].power;
+                document.getElementById(`inputHours_${k}`).value = state.devices[k].hours;
+            });
+            document.getElementById('inputTariff').value = state.tariff;
+            document.getElementById('inputBasePower').value = state.fridgeBasePower;
+        }
+
+        function saveCustomConfig() {
+            ['lamp', 'fan', 'tv', 'ac'].forEach(k => {
+                const p = parseFloat(document.getElementById(`inputPower_${k}`).value) || 10;
+                const h = parseFloat(document.getElementById(`inputHours_${k}`).value) || 1;
+                state.devices[k].power = Math.max(1, p);
+                state.devices[k].hours = Math.max(0.5, Math.min(24, h));
+            });
+            state.tariff = Math.max(0.05, parseFloat(document.getElementById('inputTariff').value) || 0.80);
+            state.fridgeBasePower = Math.max(0, parseFloat(document.getElementById('inputBasePower').value) || 0);
+            updateAll();
+        }
+
+        // Modal de Comparação de Cenários e Desafio
+        function openScenarioModal() {
+            const modal = document.getElementById('scenarioModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            renderScenarioComparison(calculateMetrics());
+        }
+
+        function closeScenarioModal() {
+            const modal = document.getElementById('scenarioModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function saveCurrentAsReference() {
+            const m = calculateMetrics();
+            state.referenceScenario = {
+                name: 'Cenário Personalizado Salvo',
+                power: m.totalPowerW,
+                monthlyKwh: m.monthlyKwh > 0 ? m.monthlyKwh : 1,
+                monthlyCost: m.monthlyCost
+            };
+            updateAll();
+        }
+
+        function renderScenarioComparison(metrics) {
+            const ref = state.referenceScenario;
+            document.getElementById('refScenarioName').textContent = ref.name;
+            document.getElementById('refPower').textContent = `${formatIntBR(ref.power)} W`;
+            document.getElementById('refMonthly').textContent = `${formatNumberBR(ref.monthlyKwh, 1)} kWh`;
+            document.getElementById('refCost').textContent = `R$ ${formatNumberBR(ref.monthlyCost, 2)}`;
+
+            document.getElementById('curModalPower').textContent = `${formatIntBR(metrics.totalPowerW)} W`;
+            document.getElementById('curModalMonthly').textContent = `${formatNumberBR(metrics.monthlyKwh, 1)} kWh`;
+            document.getElementById('curModalCost').textContent = `R$ ${formatNumberBR(metrics.monthlyCost, 2)}`;
+
+            const diffKwh = ref.monthlyKwh - metrics.monthlyKwh;
+            const diffCost = ref.monthlyCost - metrics.monthlyCost;
+            const pct = (diffKwh / ref.monthlyKwh) * 100;
+
+            const badgeText = document.getElementById('comparisonBadgeText');
+            const moneyText = document.getElementById('comparisonSavingsMoney');
+            const medalBox = document.getElementById('medalUnlockedBox');
+
+            if (pct >= 20) {
+                badgeText.textContent = `-${formatNumberBR(pct, 1)}% de Energia!`;
+                badgeText.className = 'text-2xl font-black text-emerald-700 mt-1';
+                moneyText.textContent = `Economia estimada de R$ ${formatNumberBR(diffCost, 2)} por mês (R$ ${formatNumberBR(diffCost * 12, 2)}/ano)!`;
+                medalBox.classList.remove('hidden');
+                medalBox.classList.add('flex');
+            } else if (pct > 0) {
+                badgeText.textContent = `-${formatNumberBR(pct, 1)}% de redução`;
+                badgeText.className = 'text-2xl font-black text-sky-700 mt-1';
+                moneyText.textContent = `Você já economiza R$ ${formatNumberBR(diffCost, 2)}/mês. Desligue mais um aparelho ou reduza 1h de uso para chegar aos 20%!`;
+                medalBox.classList.add('hidden');
+                medalBox.classList.remove('flex');
+            } else if (pct < 0) {
+                badgeText.textContent = `+${formatNumberBR(Math.abs(pct), 1)}% mais gasto`;
+                badgeText.className = 'text-2xl font-black text-rose-600 mt-1';
+                moneyText.textContent = `Cuidado! O cenário atual custa R$ ${formatNumberBR(Math.abs(diffCost), 2)} a mais por mês que a referência.`;
+                medalBox.classList.add('hidden');
+                medalBox.classList.remove('flex');
+            } else {
+                badgeText.textContent = '0% (Igual à Referência)';
+                badgeText.className = 'text-xl font-black text-slate-700 mt-1';
+                moneyText.textContent = 'Experimente desligar a TV ou o Ar-Condicionado para ver a economia instantânea.';
+                medalBox.classList.add('hidden');
+                medalBox.classList.remove('flex');
+            }
+
+            // Renderizar gráfico de barras por equipamento
+            const barsContainer = document.getElementById('deviceBreakdownBars');
+            barsContainer.innerHTML = '';
+
+            const items = [];
+            if (state.fridgeBaseActive && state.fridgeBasePower > 0) {
+                items.push({
+                    label: '🧊 Cozinha / Geladeira (Base)',
+                    kwh: (state.fridgeBasePower * state.fridgeBaseHours * 30) / 1000,
+                    color: 'bg-sky-500'
+                });
+            }
+            Object.keys(state.devices).forEach(k => {
+                const d = state.devices[k];
+                const kwh = d.on ? (d.power * d.hours * 30) / 1000 : 0;
+                items.push({
+                    label: `${d.name} (${d.on ? d.power + 'W × ' + d.hours + 'h' : 'Desligado'})`,
+                    kwh,
+                    color: d.on ? 'bg-amber-500' : 'bg-slate-300'
+                });
+            });
+
+            const maxKwh = Math.max(1, ...items.map(i => i.kwh));
+            items.forEach(item => {
+                const widthPct = Math.round((item.kwh / maxKwh) * 100);
+                const row = document.createElement('div');
+                row.innerHTML = `
+                    <div class="flex justify-between font-bold text-slate-700 mb-0.5">
+                        <span>${item.label}</span>
+                        <span>${formatNumberBR(item.kwh, 1)} kWh/mês (R$ ${formatNumberBR(item.kwh * state.tariff, 2)})</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                        <div class="${item.color} h-full rounded-full transition-all duration-300" style="width: ${widthPct}%"></div>
+                    </div>
+                `;
+                barsContainer.appendChild(row);
+            });
+
+            // Recomendações Inteligentes
+            const recList = document.getElementById('smartRecommendationsList');
+            recList.innerHTML = '';
+            const recs = [];
+
+            if (state.devices.ac.on) {
+                const acCost = ((state.devices.ac.power * state.devices.ac.hours * 30) / 1000) * state.tariff;
+                recs.push(`O Ar-Condicionado sozinho representa R$ ${formatNumberBR(acCost, 2)} mensais. Substituí-lo pelo ventilador nos dias amenos reduz drasticamente a fatura.`);
+            }
+            if (state.devices.tv.on) {
+                recs.push('Evite deixar a TV ligada sem ninguém assistindo na sala: desligá-la economiza energia imediata.');
+            }
+            if (state.devices.lamp.power > 20) {
+                recs.push('Trocar lâmpadas antigas por modelos LED de 9W a 15W reduz o gasto de iluminação em até 80%.');
+            }
+            recs.push('Reduzir apenas 1 hora diária de uso dos aparelhos ativos diminui 20% do consumo no fim do mês!');
+
+            recs.forEach(r => {
+                const li = document.createElement('li');
+                li.textContent = r;
+                recList.appendChild(li);
+            });
+        }
+
+        // Inicialização ao carregar a página
+        window.onload = function () {
+            updateAll();
+        };
+    </script>
+</body>
+</html>
